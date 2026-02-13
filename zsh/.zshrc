@@ -29,10 +29,17 @@ path+=("$HOME/.local/bin")  # Used for uv
 alias gw='git worktree'
 
 # Other aliases
-alias ls='lsd'
-alias ll='lsd -l'
-alias la='lsd -a'
-alias lsa='lsd -lah'
+if [[ "$TERM" == "linux" ]]; then
+  alias ls='lsd --icon never'
+  alias ll='lsd --icon never -l'
+  alias la='lsd --icon never -a'
+  alias lsa='lsd --icon never -lah'
+else
+  alias ls='lsd'
+  alias ll='lsd -l'
+  alias la='lsd -a'
+  alias lsa='lsd -lah'
+fi
 
 # Zim alias finder (shanwker1223/zim-alias-finder)
 zstyle ':zim:plugins:alias-finder' autoload yes
