@@ -87,6 +87,10 @@ if [ -f "$ZSH_INSTALL_DIR/starship.toml" ]; then
     sudo -Hu "$TARGET_USER" mkdir -p "$TARGET_HOME/.config"
     ln -sfn "$ZSH_INSTALL_DIR/starship.toml" "$TARGET_HOME/.config/starship.toml"
 fi
+if [ -f "$ZSH_INSTALL_DIR/starship-tty.toml" ]; then
+    sudo -Hu "$TARGET_USER" mkdir -p "$TARGET_HOME/.config"
+    ln -sfn "$ZSH_INSTALL_DIR/starship-tty.toml" "$TARGET_HOME/.config/starship-tty.toml"
+fi
 
 # --- Set default shell ---
 if [ "$MACHINE" = "MacOS" ]; then

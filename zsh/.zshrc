@@ -14,6 +14,11 @@ HISTSIZE=50000
 SAVEHIST=50000
 HISTFILE=~/.zsh_history
 
+# When in tty swap to different starship config so different fonts can be used
+if [[ "$TERM" == "linux" ]]; then
+  export STARSHIP_CONFIG="$HOME/.config/starship-tty.toml"
+fi
+
 # --- direnv ---
 eval "$(direnv hook zsh)"
 
@@ -22,6 +27,12 @@ path+=("$HOME/.local/bin")  # Used for uv
 
 # --- Git aliases ---
 alias gw='git worktree'
+
+# Other aliases
+alias ls='lsd'
+alias ll='lsd -l'
+alias la='lsd -a'
+alias lsa='lsd -lah'
 
 # Zim alias finder (shanwker1223/zim-alias-finder)
 zstyle ':zim:plugins:alias-finder' autoload yes

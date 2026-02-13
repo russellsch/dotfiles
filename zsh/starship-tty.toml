@@ -1,0 +1,230 @@
+# TTY-compatible starship config
+# No Nerd Fonts, no hex colors, no emoji — plain text + basic ANSI only
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = '$all'
+
+continuation_prompt = '[.](bright-black) '
+
+# Starship modules
+[character]
+success_symbol = "[>](bold green)"
+error_symbol = "[x](bold red)"
+vimcmd_symbol = "[<](bold green)"
+vimcmd_visual_symbol = "[<](bold yellow)"
+vimcmd_replace_symbol = "[<](bold magenta)"
+vimcmd_replace_one_symbol = "[<](bold magenta)"
+
+[line_break]
+disabled = false
+
+[directory]
+truncation_length = 4
+style = "bold blue"
+read_only = " ro"
+
+[git_branch]
+symbol = "git "
+style = "bold magenta"
+truncation_symbol = "..."
+
+[git_commit]
+tag_symbol = " tag "
+
+[git_status]
+ahead = ">"
+behind = "<"
+diverged = "<>"
+renamed = "r"
+deleted = "x"
+
+[hostname]
+ssh_symbol = "ssh "
+
+[jobs]
+symbol = "*"
+
+[os]
+disabled = true
+
+[os.symbols]
+Alpine = "alp "
+Arch = "rch "
+Debian = "deb "
+Fedora = "fed "
+Linux = "lnx "
+Manjaro = "mjo "
+Mint = "mint "
+NixOS = "nix "
+Pop = "pop "
+Raspbian = "rasp "
+Ubuntu = "ubnt "
+Unknown = "unk "
+
+[sudo]
+disabled = false
+symbol = "su"
+format = '[\[$symbol\]]($style) '
+style = 'bold yellow'
+
+[username]
+disabled = false
+
+# Language/tool symbols — plain text overrides
+[aws]
+symbol = "aws "
+
+[azure]
+symbol = "az "
+
+[buf]
+symbol = "buf "
+
+[bun]
+symbol = "bun "
+
+[c]
+symbol = "C "
+
+[cmake]
+symbol = "cmake "
+
+[conda]
+symbol = "conda "
+
+[container]
+symbol = "container "
+
+[crystal]
+symbol = "cr "
+
+[dart]
+symbol = "dart "
+
+[deno]
+symbol = "deno "
+
+[docker_context]
+symbol = "docker "
+
+[dotnet]
+symbol = ".NET "
+
+[elixir]
+symbol = "exs "
+
+[elm]
+symbol = "elm "
+
+[erlang]
+symbol = "erl "
+
+[fennel]
+symbol = "fnl "
+
+[fortran]
+symbol = "fortran "
+
+[gcloud]
+symbol = "gcp "
+
+[gleam]
+symbol = "gleam "
+
+[golang]
+symbol = "go "
+
+[gradle]
+symbol = "gradle "
+
+[guix_shell]
+symbol = "guix "
+
+[haskell]
+symbol = "haskell "
+
+[helm]
+symbol = "helm "
+
+[java]
+symbol = "java "
+
+[julia]
+symbol = "jl "
+
+[kotlin]
+symbol = "kt "
+
+[kubernetes]
+symbol = "kubernetes "
+
+[lua]
+symbol = "lua "
+
+[memory_usage]
+symbol = "memory "
+
+[mojo]
+symbol = "mojo "
+
+[nim]
+symbol = "nim "
+
+[nix_shell]
+symbol = "nix "
+
+[nodejs]
+symbol = "nodejs "
+
+[ocaml]
+symbol = "ml "
+
+[package]
+symbol = "pkg "
+
+[perl]
+symbol = "pl "
+
+[php]
+symbol = "php "
+
+[python]
+symbol = "py "
+
+[ruby]
+symbol = "rb "
+
+[rust]
+symbol = "rs "
+
+[scala]
+symbol = "scala "
+
+[swift]
+symbol = "swift "
+
+[terraform]
+symbol = "terraform "
+
+[typst]
+symbol = "typst "
+
+[vagrant]
+symbol = "vagrant "
+
+[zig]
+symbol = "zig "
+
+[battery]
+full_symbol = "full "
+charging_symbol = "charging "
+discharging_symbol = "discharging "
+unknown_symbol = "unknown "
+empty_symbol = "empty "
+
+[status]
+symbol = "[x](bold red) "
+not_executable_symbol = "noexec"
+not_found_symbol = "notfound"
+sigint_symbol = "sigint"
+signal_symbol = "sig"
