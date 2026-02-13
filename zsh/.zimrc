@@ -6,6 +6,7 @@ zmodule magic-enter
 zmodule fzf
 zmodule smite # Run smite to remove shell history
 zmodule termtitle
+zmodule archive
 
 zmodule zsh-users/zsh-autosuggestions
 zmodule zdharma-continuum/fast-syntax-highlighting
