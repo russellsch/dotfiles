@@ -18,18 +18,21 @@ The installer auto-detects container environments (Docker, Codespaces, devcontai
 
 - Skips interactive prompts (auto-accepts defaults)
 - Skips Nerd Font installation (the host terminal provides fonts)
-- Skips `chsh` (containers typically don't need it / it may fail)
+- `chsh` is attempted but failures are non-fatal
 
 ### VS Code devcontainer setup
 
-Add to your VS Code `settings.json`:
+Add to your VS Code user `settings.json`:
 
 ```json
 {
   "dotfiles.repository": "YOUR_USER/dotfiles",
-  "dotfiles.installCommand": "install.sh"
+  "dotfiles.installCommand": "install.sh",
+  "terminal.integrated.defaultProfile.linux": "zsh"
 }
 ```
+
+The terminal setting ensures VS Code opens zsh in containers. It only applies to Linux remotes and falls back silently if zsh isn't installed.
 
 For GitHub Codespaces, configure the same under **Settings > Codespaces > Dotfiles** in your GitHub account.
 
@@ -42,7 +45,7 @@ All behavior can be overridden with env vars. These are checked before auto-dete
 | `DOTFILES_CONTAINER` | auto-detected | Set to `true` to force container mode |
 | `DOTFILES_INTERACTIVE` | `true` (unless stdin is not a TTY) | Set to `false` to skip all prompts |
 | `DOTFILES_SKIP_FONTS` | same as `DOTFILES_CONTAINER` | Set to `true` to skip Nerd Font installation |
-| `DOTFILES_SKIP_CHSH` | same as `DOTFILES_CONTAINER` | Set to `true` to skip changing the default shell |
+| `DOTFILES_SKIP_CHSH` | `false` | Set to `true` to skip changing the default shell |
 
 Examples:
 
