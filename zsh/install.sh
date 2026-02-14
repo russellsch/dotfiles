@@ -24,21 +24,25 @@ fi
 
 
 # --- Nerd Fonts ---
-FONT_DIR="$TARGET_HOME/.local/share/fonts"
-printf '\e[34m%s\e[0m\n' "Installing Nerd Fonts (FiraCode, DroidSansMono)..." 1>&2
-if [ "$MACHINE" = "Ubuntu" ]; then
-    sudo -Hu "$TARGET_USER" mkdir -p "$FONT_DIR"
-    for font in FiraCode DroidSansMono; do
-        curl -fsSL -o "/tmp/${font}.tar.xz" \
-            "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/${font}.tar.xz"
-        sudo -Hu "$TARGET_USER" tar -xf "/tmp/${font}.tar.xz" -C "$FONT_DIR"
-        rm "/tmp/${font}.tar.xz"
-    done
-    fc-cache -f
-elif [ "$MACHINE" = "MacOS" ]; then
-    brew install --cask font-fira-code-nerd-font font-droid-sans-mono-nerd-font
-elif [ "$MACHINE" = "Arch" ]; then
-    pacman -S ttf-firacode-nerd ttf-droid --noconfirm
+if [ "$DOTFILES_SKIP_FONTS" != "true" ]; then
+    FONT_DIR="$TARGET_HOME/.local/share/fonts"
+    printf '\e[34m%s\e[0m\n' "Installing Nerd Fonts (FiraCode, DroidSansMono)..." 1>&2
+    if [ "$MACHINE" = "Ubuntu" ]; then
+        sudo -Hu "$TARGET_USER" mkdir -p "$FONT_DIR"
+        for font in FiraCode DroidSansMono; do
+            curl -fsSL -o "/tmp/${font}.tar.xz" \
+                "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/${font}.tar.xz"
+            sudo -Hu "$TARGET_USER" tar -xf "/tmp/${font}.tar.xz" -C "$FONT_DIR"
+            rm "/tmp/${font}.tar.xz"
+        done
+        fc-cache -f
+    elif [ "$MACHINE" = "MacOS" ]; then
+        brew install --cask font-fira-code-nerd-font font-droid-sans-mono-nerd-font
+    elif [ "$MACHINE" = "Arch" ]; then
+        pacman -S ttf-firacode-nerd ttf-droid --noconfirm
+    fi
+else
+    printf '\e[33m%s\e[0m\n' "Skipping Nerd Fonts (DOTFILES_SKIP_FONTS=true)" 1>&2
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing Dependency: Starship..." 1>&2
@@ -93,11 +97,15 @@ if [ -f "$ZSH_INSTALL_DIR/starship-tty.toml" ]; then
 fi
 
 # --- Set default shell ---
-if [ "$MACHINE" = "MacOS" ]; then
-    echo "$(which zsh)" | tee -a /etc/shells > /dev/null
+if [ "$DOTFILES_SKIP_CHSH" != "true" ]; then
+    if [ "$MACHINE" = "MacOS" ]; then
+        echo "$(which zsh)" | tee -a /etc/shells > /dev/null
+    fi
+    printf '\e[34m%s\e[0m\n' "Updating shell..." 1>&2
+    chsh -s "$(which zsh)" "$TARGET_USER"
+else
+    printf '\e[33m%s\e[0m\n' "Skipping chsh (DOTFILES_SKIP_CHSH=true)" 1>&2
 fi
-printf '\e[34m%s\e[0m\n' "Updating shell..." 1>&2
-chsh -s "$(which zsh)" "$TARGET_USER"
 
 # --- Install zimfw plugins ---
 printf '\e[34m%s\e[0m\n' "Installing zsh plugins via zimfw..." 1>&2
