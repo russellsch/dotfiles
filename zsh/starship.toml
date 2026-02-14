@@ -37,6 +37,10 @@ style = 'bold yellow'
 [username]
 disabled = false
 
+[cpp]
+detect_files = ['BUILD', 'WORKSPACE', 'WORKSPACE.bzlmod']
+disabled = false
+
 [os.symbols]
 Pop = ' '
 Mint = '󰣭 '
