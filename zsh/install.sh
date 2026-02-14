@@ -102,7 +102,9 @@ if [ "$DOTFILES_SKIP_CHSH" != "true" ]; then
         echo "$(which zsh)" | tee -a /etc/shells > /dev/null
     fi
     printf '\e[34m%s\e[0m\n' "Updating shell..." 1>&2
-    chsh -s "$(which zsh)" "$TARGET_USER"
+    if ! chsh -s "$(which zsh)" "$TARGET_USER" 2>/dev/null; then
+        printf '\e[33m%s\e[0m\n' "chsh failed (non-fatal) — set SHELL manually or use DOTFILES_SKIP_CHSH=true" 1>&2
+    fi
 else
     printf '\e[33m%s\e[0m\n' "Skipping chsh (DOTFILES_SKIP_CHSH=true)" 1>&2
 fi
