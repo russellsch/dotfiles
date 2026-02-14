@@ -40,6 +40,16 @@ else
 fi
 export TARGET_USER TARGET_HOME
 
+# Helper: run a command as TARGET_USER (skips sudo when already that user)
+run_as_user() {
+    if [ "$(id -u)" = "$(id -u "$TARGET_USER" 2>/dev/null)" ]; then
+        "$@"
+    else
+        sudo -Hu "$TARGET_USER" "$@"
+    fi
+}
+export -f run_as_user
+
 # Confirm the user and home directory
 printf '\e[34m%s\e[0m\n' "Installing for user $TARGET_USER with home directory $TARGET_HOME" 1>&2
 if [ "$DOTFILES_INTERACTIVE" = "true" ]; then
@@ -126,8 +136,8 @@ elif [ "$MACHINE" = "Arch" ]; then
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing Dependency: uv ..." 1>&2
-if [ -z "${UV_SKIP_INSTALL:-}" ] && ! sudo -Hu "$TARGET_USER" uv --version &>/dev/null; then
-    sudo -Hu "$TARGET_USER" sh -c 'curl --proto "=https" --tlsv1.2 -LsSf https://github.com/astral-sh/uv/releases/download/0.10.2/uv-installer.sh | sh'
+if [ -z "${UV_SKIP_INSTALL:-}" ] && ! run_as_user uv --version &>/dev/null; then
+    run_as_user sh -c 'curl --proto "=https" --tlsv1.2 -LsSf https://github.com/astral-sh/uv/releases/download/0.10.2/uv-installer.sh | sh'
 fi
 
 # Setup zsh
@@ -138,12 +148,12 @@ fi
 
 
 if [ "$DOTFILES_INTERACTIVE" = "true" ]; then
-    if ! sudo -Hu "$TARGET_USER" git config user.name &>/dev/null || ! sudo -Hu "$TARGET_USER" git config user.email &>/dev/null; then
+    if ! run_as_user git config user.name &>/dev/null || ! run_as_user git config user.email &>/dev/null; then
         printf '\e[34m%s\e[0m\n' "Setting global git user..." 1>&2
         read -r -p "Git user name: " git_name
         read -r -p "Git email: " git_email
-        sudo -Hu "$TARGET_USER" git config --global user.name "$git_name"
-        sudo -Hu "$TARGET_USER" git config --global user.email "$git_email"
+        run_as_user git config --global user.name "$git_name"
+        run_as_user git config --global user.email "$git_email"
     fi
 fi
 

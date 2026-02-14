@@ -19,7 +19,7 @@ printf '\e[34m%s\e[0m\n' "Installing Dependency: Zim Framework..." 1>&2
 if [ -d "$TARGET_HOME/.zim" ]; then
     printf '\e[33m%s\e[0m\n' "Zim Framework already installed, skipping..." 1>&2
 else
-    sudo -Hu "$TARGET_USER" zsh -c "$(curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh)"
+    run_as_user zsh -c "$(curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh)"
 fi
 
 
@@ -28,11 +28,11 @@ if [ "$DOTFILES_SKIP_FONTS" != "true" ]; then
     FONT_DIR="$TARGET_HOME/.local/share/fonts"
     printf '\e[34m%s\e[0m\n' "Installing Nerd Fonts (FiraCode, DroidSansMono)..." 1>&2
     if [ "$MACHINE" = "Ubuntu" ]; then
-        sudo -Hu "$TARGET_USER" mkdir -p "$FONT_DIR"
+        run_as_user mkdir -p "$FONT_DIR"
         for font in FiraCode DroidSansMono; do
             curl -fsSL -o "/tmp/${font}.tar.xz" \
                 "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/${font}.tar.xz"
-            sudo -Hu "$TARGET_USER" tar -xf "/tmp/${font}.tar.xz" -C "$FONT_DIR"
+            run_as_user tar -xf "/tmp/${font}.tar.xz" -C "$FONT_DIR"
             rm "/tmp/${font}.tar.xz"
         done
         fc-cache -f
@@ -55,9 +55,9 @@ fi
 printf '\e[34m%s\e[0m\n' "Installing fzf (from GitHub)..." 1>&2
 FZF_DIR="$TARGET_HOME/.fzf"
 if [ ! -d "$FZF_DIR" ]; then
-    sudo -Hu "$TARGET_USER" git clone --depth 1 https://github.com/junegunn/fzf.git "$FZF_DIR"
+    run_as_user git clone --depth 1 https://github.com/junegunn/fzf.git "$FZF_DIR"
 fi
-sudo -Hu "$TARGET_USER" "$FZF_DIR/install" --bin
+run_as_user "$FZF_DIR/install" --bin
 
 printf '\e[34m%s\e[0m\n' "Installing lsd (ls replacement)..." 1>&2
 if [ "$MACHINE" = "Ubuntu" ]; then
@@ -69,7 +69,7 @@ elif [ "$MACHINE" = "Arch" ]; then
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing thefuck..." 1>&2
-sudo -Hu "$TARGET_USER" bash -c 'export PATH="$HOME/.local/bin:$PATH" && uv tool install thefuck'
+run_as_user bash -c 'export PATH="$HOME/.local/bin:$PATH" && uv tool install thefuck'
 
 printf '\e[34m%s\e[0m\n' "Installing direnv..." 1>&2
 if [ "$MACHINE" = "Ubuntu" ]; then
@@ -88,11 +88,11 @@ ln -sfn "$ZSH_INSTALL_DIR/.zimrc" "$TARGET_HOME/.zimrc"
 
 # Create starship config dir and link if config exists
 if [ -f "$ZSH_INSTALL_DIR/starship.toml" ]; then
-    sudo -Hu "$TARGET_USER" mkdir -p "$TARGET_HOME/.config"
+    run_as_user mkdir -p "$TARGET_HOME/.config"
     ln -sfn "$ZSH_INSTALL_DIR/starship.toml" "$TARGET_HOME/.config/starship.toml"
 fi
 if [ -f "$ZSH_INSTALL_DIR/starship-tty.toml" ]; then
-    sudo -Hu "$TARGET_USER" mkdir -p "$TARGET_HOME/.config"
+    run_as_user mkdir -p "$TARGET_HOME/.config"
     ln -sfn "$ZSH_INSTALL_DIR/starship-tty.toml" "$TARGET_HOME/.config/starship-tty.toml"
 fi
 
@@ -109,7 +109,7 @@ fi
 
 # --- Install zimfw plugins ---
 printf '\e[34m%s\e[0m\n' "Installing zsh plugins via zimfw..." 1>&2
-sudo -Hu "$TARGET_USER" zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/zimfw.zsh install"
+run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/zimfw.zsh install"
 
 chown -R "$TARGET_USER":"$TARGET_USER" "$TARGET_HOME/.zim" 2>/dev/null || true
 
