@@ -99,10 +99,10 @@ fi
 # --- Set default shell ---
 if [ "$DOTFILES_SKIP_CHSH" != "true" ]; then
     if [ "$MACHINE" = "MacOS" ]; then
-        echo "$(which zsh)" | tee -a /etc/shells > /dev/null
+        echo "$(which zsh)" | run_as_root tee -a /etc/shells > /dev/null
     fi
     printf '\e[34m%s\e[0m\n' "Updating shell..." 1>&2
-    if ! chsh -s "$(which zsh)" "$TARGET_USER" 2>/dev/null; then
+    if ! run_as_root chsh -s "$(which zsh)" "$TARGET_USER" 2>/dev/null; then
         printf '\e[33m%s\e[0m\n' "chsh failed (non-fatal) — set SHELL manually or use DOTFILES_SKIP_CHSH=true" 1>&2
     fi
 else
