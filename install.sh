@@ -128,7 +128,9 @@ if [ "$MACHINE" = "Ubuntu" ]; then
     apt-get update
     apt-get install curl git -y
 elif [ "$MACHINE" = "MacOS" ]; then
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" </dev/null
+    if ! command -v brew &>/dev/null; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/null
+    fi
     brew install curl git
 elif [ "$MACHINE" = "Arch" ]; then
     pacman -Sy --noconfirm
