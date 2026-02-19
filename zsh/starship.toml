@@ -24,6 +24,12 @@ style = "bold mauve"
 truncation_length = 4
 style = "bold lavender"
 
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
 [os]
 disabled = false
 style = "lavender"
