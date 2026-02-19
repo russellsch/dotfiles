@@ -19,8 +19,8 @@ DOTFILES_SKIP_CHSH="${DOTFILES_SKIP_CHSH:-false}"
 
 export DOTFILES_CONTAINER DOTFILES_INTERACTIVE DOTFILES_SKIP_FONTS DOTFILES_SKIP_CHSH
 
-# Self-elevate to root if needed
-if [ "$(id -u)" -ne 0 ]; then
+# Self-elevate to root if needed (not on macOS — Homebrew refuses root)
+if [ "$(id -u)" -ne 0 ] && [ "$(uname -s)" != "Darwin" ]; then
     printf '\e[34m%s\e[0m\n' "Root privileges required. Re-running with sudo..." 1>&2
     exec sudo --preserve-env=DOTFILES_CONTAINER,DOTFILES_INTERACTIVE,DOTFILES_SKIP_FONTS,DOTFILES_SKIP_CHSH "$0" "$@"
 fi
@@ -34,7 +34,7 @@ if [ -n "${SUDO_USER:-}" ]; then
         TARGET_HOME="$(dscl . -read /Users/"$TARGET_USER" NFSHomeDirectory | awk '{print $2}')"
     fi
 else
-    # Running as root without sudo (e.g. containers)
+    # Running as root without sudo (e.g. containers), or as normal user (macOS)
     TARGET_USER="${USER:-root}"
     TARGET_HOME="${HOME:-/root}"
 fi
@@ -49,6 +49,16 @@ run_as_user() {
     fi
 }
 export -f run_as_user
+
+# Helper: run a command as root (uses sudo only when not already root)
+run_as_root() {
+    if [ "$(id -u)" -eq 0 ]; then
+        "$@"
+    else
+        sudo "$@"
+    fi
+}
+export -f run_as_root
 
 # Confirm the user and home directory
 printf '\e[34m%s\e[0m\n' "Installing for user $TARGET_USER with home directory $TARGET_HOME" 1>&2
