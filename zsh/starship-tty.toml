@@ -72,6 +72,7 @@ disabled = false
 
 # Language/tool symbols — plain text overrides
 [aws]
+symbol = "aws "
 disabled = true
 
 [azure]
@@ -126,6 +127,7 @@ symbol = "fnl "
 symbol = "fortran "
 
 [gcloud]
+symbol = "gcp "
 disabled = true
 
 [gleam]
