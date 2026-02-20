@@ -4,9 +4,10 @@ Dotfiles (and general environment setup) for clean OS ramp-up in a variety of co
 
 ## Supported OSes
 - Ubuntu (tested on 24.04)
+- OS X (tested on OS X 26 Tahoe)
 
 
-## Usage
+## Installing
 
 `./install.sh`
 
@@ -69,3 +70,7 @@ DOTFILES_SKIP_FONTS=true ./install.sh
 # Fully non-interactive container-style install
 DOTFILES_CONTAINER=true DOTFILES_INTERACTIVE=false ./install.sh
 ```
+
+## Updating
+
+To update packages and tools used, as well as reload Zim FW and starship, run the `./update.sh` script.
