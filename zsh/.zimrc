@@ -16,5 +16,5 @@ zmodule shanwker1223/zim-alias-finder
 #zmodule MichaelAquilina/zsh-you-should-use
 
 #zmodule zsh-users/zsh-completions --fpath src
-#zmodule Aloxaf/fzf-tab
+zmodule Aloxaf/fzf-tab
 #zmodule djui/alias-tips
