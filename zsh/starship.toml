@@ -24,6 +24,10 @@ style = "bold mauve"
 truncation_length = 4
 style = "bold lavender"
 
+[direnv]
+disabled = false
+style = "bold peach"
+
 [aws]
 disabled = true
 
