@@ -53,6 +53,7 @@ disabled = false
 
 [os.symbols]
 Pop = ' '
+Macos = " "
 Mint = '󰣭 '
 
 # Palette definitions
