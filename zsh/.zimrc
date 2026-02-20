@@ -8,11 +8,11 @@ zmodule smite # Run smite to remove shell history
 zmodule termtitle
 zmodule archive
 
-zmodule shanwker1223/zim-alias-finder
+zmodule shanwker1223/zim-alias-finder --tag v1.0.0
 
 # fzf-tab must load after completion but before widget-wrapping plugins
-zmodule Aloxaf/fzf-tab
+zmodule Aloxaf/fzf-tab --tag v1.2.0
 
 # syntax highlighting before autosuggestions; autosuggestions must be last
-zmodule zdharma-continuum/fast-syntax-highlighting
-zmodule zsh-users/zsh-autosuggestions
+zmodule zdharma-continuum/fast-syntax-highlighting --tag v1.56
+zmodule zsh-users/zsh-autosuggestions --tag v0.7.1

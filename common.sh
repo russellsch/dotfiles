@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-set -eu
+set -euo pipefail
 
 # --- Resolve repo root ---
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -97,6 +97,11 @@ else
     TARGET_HOME="${HOME:-/root}"
 fi
 export TARGET_USER TARGET_HOME
+
+# --- Pinned dependency versions ---
+STARSHIP_VERSION="v1.24.2"
+FZF_VERSION="v0.68.0"
+export STARSHIP_VERSION FZF_VERSION
 
 # --- Helpers ---
 # Helper: run a command as TARGET_USER (skips sudo when already that user)

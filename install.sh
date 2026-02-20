@@ -28,7 +28,8 @@ if [ "$MACHINE" = "Ubuntu" ]; then
     apt-get install curl git -y
 elif [ "$MACHINE" = "MacOS" ]; then
     if ! command -v brew &>/dev/null; then
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/null
+        # Homebrew/install pinned to 5838cadb (2026-02-19)
+        /bin/bash -c "$(curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/Homebrew/install/5838cadbb2c7beb17c7dcdddb5f0dba6c4780feb/install.sh)" </dev/null
     fi
     brew install curl git
 elif [ "$MACHINE" = "Arch" ]; then

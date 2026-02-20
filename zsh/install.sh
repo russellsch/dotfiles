@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 ZSH_INSTALL_DIR=$(pwd)
 export ZSH_INSTALL_DIR
@@ -20,7 +20,8 @@ printf '\e[34m%s\e[0m\n' "Installing Dependency: Zim Framework..." 1>&2
 if [ -d "$TARGET_HOME/.zim" ]; then
     printf '\e[33m%s\e[0m\n' "Zim Framework already installed, skipping..." 1>&2
 else
-    run_as_user zsh -c "$(curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh)"
+    # zimfw/install pinned to 55a2a28d (2026-02-19)
+    run_as_user zsh -c "$(curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/zimfw/install/55a2a28dfef53b9a12a16e38279f662363229c69/install.zsh)"
 fi
 
 
@@ -30,9 +31,10 @@ if [ "$DOTFILES_SKIP_FONTS" != "true" ]; then
     printf '\e[34m%s\e[0m\n' "Installing Nerd Fonts (FiraCode, DroidSansMono)..." 1>&2
     if [ "$MACHINE" = "Ubuntu" ]; then
         run_as_user mkdir -p "$FONT_DIR"
+        NERD_FONTS_VERSION="v3.4.0"
         for font in FiraCode DroidSansMono; do
-            curl -fsSL -o "/tmp/${font}.tar.xz" \
-                "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/${font}.tar.xz"
+            curl --proto '=https' --tlsv1.2 -fsSL -o "/tmp/${font}.tar.xz" \
+                "https://github.com/ryanoasis/nerd-fonts/releases/download/${NERD_FONTS_VERSION}/${font}.tar.xz"
             run_as_user tar -xf "/tmp/${font}.tar.xz" -C "$FONT_DIR"
             rm "/tmp/${font}.tar.xz"
         done
@@ -50,13 +52,13 @@ printf '\e[34m%s\e[0m\n' "Installing Dependency: Starship..." 1>&2
 if [ "$MACHINE" = "MacOS" ]; then
     brew install starship
 else
-    curl -sS https://starship.rs/install.sh | sh -s -- -y
+    curl --proto '=https' --tlsv1.2 -fsSL https://starship.rs/install.sh | sh -s -- -y -v "$STARSHIP_VERSION"
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing fzf (from GitHub)..." 1>&2
 FZF_DIR="$TARGET_HOME/.fzf"
 if [ ! -d "$FZF_DIR" ]; then
-    run_as_user git clone --depth 1 https://github.com/junegunn/fzf.git "$FZF_DIR"
+    run_as_user git clone --branch "$FZF_VERSION" --depth 1 https://github.com/junegunn/fzf.git "$FZF_DIR"
 fi
 run_as_user "$FZF_DIR/install" --bin
 
