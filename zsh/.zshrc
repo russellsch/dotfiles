@@ -3,9 +3,6 @@ ZIM_HOME=~/.zim
 [[ -f ${ZIM_HOME}/init.zsh ]] || source ${ZIM_HOME}/zimfw.zsh init -q
 source ${ZIM_HOME}/init.zsh
 
-# --- Prompt ---
-eval "$(starship init zsh)"
-
 # --- Sane options (replaces zsh-saneopt) ---
 setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS
 setopt HIST_IGNORE_ALL_DUPS HIST_SAVE_NO_DUPS HIST_REDUCE_BLANKS SHARE_HISTORY
@@ -19,8 +16,11 @@ if [[ "$TERM" == "linux" ]]; then
   export STARSHIP_CONFIG="$HOME/.config/starship-tty.toml"
 fi
 
-# --- direnv ---
+# --- direnv (must hook before starship so DIRENV_FILE is set for first prompt) ---
 eval "$(direnv hook zsh)"
+
+# --- Prompt ---
+eval "$(starship init zsh)"
 
 # --- PATH ---
 path+=("$HOME/.local/bin")  # Used for uv
