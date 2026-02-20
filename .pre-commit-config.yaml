@@ -7,6 +7,12 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: check-toml
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: detect-private-key
+      - id: check-added-large-files
+      - id: check-case-conflict
 
   # Shell linting
   - repo: https://github.com/shellcheck-py/shellcheck-py
