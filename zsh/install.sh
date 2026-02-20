@@ -31,7 +31,6 @@ if [ "$DOTFILES_SKIP_FONTS" != "true" ]; then
     printf '\e[34m%s\e[0m\n' "Installing Nerd Fonts (FiraCode, DroidSansMono)..." 1>&2
     if [ "$MACHINE" = "Ubuntu" ]; then
         run_as_user mkdir -p "$FONT_DIR"
-        NERD_FONTS_VERSION="v3.4.0"
         for font in FiraCode DroidSansMono; do
             curl --proto '=https' --tlsv1.2 -fsSL -o "/tmp/${font}.tar.xz" \
                 "https://github.com/ryanoasis/nerd-fonts/releases/download/${NERD_FONTS_VERSION}/${font}.tar.xz"
@@ -63,12 +62,22 @@ fi
 run_as_user "$FZF_DIR/install" --bin
 
 printf '\e[34m%s\e[0m\n' "Installing lsd (ls replacement)..." 1>&2
-if [ "$MACHINE" = "Ubuntu" ]; then
-    apt-get install lsd -y
-elif [ "$MACHINE" = "MacOS" ]; then
+if [ "$MACHINE" = "MacOS" ]; then
     brew install lsd
+elif [ "$MACHINE" = "Ubuntu" ]; then
+    # Install from GitHub releases for hex color support (requires >=1.1.0)
+    case "$(uname -m)" in
+        x86_64)  LSD_ARCH=amd64 ;;
+        aarch64) LSD_ARCH=arm64 ;;
+        *)       LSD_ARCH=amd64 ;;
+    esac
+    LSD_DEB="lsd_${LSD_VERSION#v}_${LSD_ARCH}.deb"
+    curl --proto '=https' --tlsv1.2 -fsSL -o "/tmp/$LSD_DEB" \
+        "https://github.com/lsd-rs/lsd/releases/download/${LSD_VERSION}/${LSD_DEB}"
+    dpkg -i "/tmp/$LSD_DEB"
+    rm -f "/tmp/$LSD_DEB"
 elif [ "$MACHINE" = "Arch" ]; then
-    pacman -S lsd --noconfirm
+    pacman -S lsd --noconfirm  # Arch repos have recent versions
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing thefuck..." 1>&2
@@ -99,6 +108,11 @@ if [ -f "$ZSH_INSTALL_DIR/starship-tty.toml" ]; then
     run_as_user mkdir -p "$TARGET_HOME/.config"
     ln -sfn "$ZSH_INSTALL_DIR/starship-tty.toml" "$TARGET_HOME/.config/starship-tty.toml"
 fi
+
+# Create lsd config dir and link theme files
+run_as_user mkdir -p "$TARGET_HOME/.config/lsd"
+ln -sfn "$ZSH_INSTALL_DIR/lsd/config.yaml" "$TARGET_HOME/.config/lsd/config.yaml"
+ln -sfn "$ZSH_INSTALL_DIR/lsd/colors.yaml" "$TARGET_HOME/.config/lsd/colors.yaml"
 
 # --- Set default shell ---
 if [ "$DOTFILES_SKIP_CHSH" != "true" ]; then

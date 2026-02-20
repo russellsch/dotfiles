@@ -1,0 +1,38 @@
+user: "#c6a0f6"       # mauve
+group: "#b7bdf8"       # lavender
+permission:
+  read: "#a6da95"      # green
+  write: "#eed49f"     # yellow
+  exec: "#ee99a0"      # maroon
+  exec-sticky: "#c6a0f6"  # mauve
+  no-access: "#a5adcb" # subtext0
+  octal: "#8bd5ca"     # teal
+  acl: "#8bd5ca"       # teal
+  context: "#91d7e3"   # sky
+date:
+  hour-old: "#8bd5ca"  # teal
+  day-old: "#91d7e3"   # sky
+  older: "#7dc4e4"     # sapphire
+size:
+  none: "#a5adcb"      # subtext0
+  small: "#a6da95"     # green
+  medium: "#eed49f"    # yellow
+  large: "#f5a97f"     # peach
+inode:
+  valid: "#f5bde6"     # pink
+  invalid: "#a5adcb"   # subtext0
+links:
+  valid: "#f5bde6"     # pink
+  invalid: "#a5adcb"   # subtext0
+tree-edge: "#b8c0e0"   # subtext1
+git-status:
+  default: "#cad3f5"   # text
+  unmodified: "#a5adcb"  # subtext0
+  ignored: "#a5adcb"   # subtext0
+  new-in-index: "#a6da95"  # green
+  new-in-workdir: "#a6da95"  # green
+  typechange: "#eed49f"  # yellow
+  deleted: "#ed8796"   # red
+  renamed: "#a6da95"   # green
+  modified: "#eed49f"  # yellow
+  conflicted: "#ed8796"  # red
