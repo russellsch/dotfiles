@@ -12,6 +12,19 @@ Dotfiles (and general environment setup) for clean OS ramp-up in a variety of co
 
 The script will prompt for sudo automatically and install everything into the correct user home directory.
 
+## Quickstart
+
+Key shortcuts provided by fzf (via Zim):
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl-R` | Search command history |
+| `Ctrl-T` | Find and insert a file path |
+| `Alt-C` | cd into a directory |
+| `Tab` | fzf-powered completion (fzf-tab) |
+
+All use the Catppuccin Macchiato color theme.
+
 ## Devcontainers / Codespaces
 
 The installer auto-detects container environments (Docker, Codespaces, devcontainers, systemd-nspawn, Podman) and adjusts its behavior:
