@@ -70,6 +70,9 @@ symbol = "su"
 format = '[\[$symbol\]]($style) '
 style = 'bold yellow'
 
+[shlvl]
+disabled = false
+
 [username]
 disabled = false
 
