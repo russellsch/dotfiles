@@ -1,74 +1,6 @@
 #!/bin/bash
 
-set -e # Exit immediately if a command exits with a non-zero status.
-set -u # Treat unset variables as an error when substituting.
-
-# --- OS Detection (same pattern as install.sh) ---
-unameOut="$(uname -s)"
-case "$unameOut" in
-    Linux*)     machine=Linux;;
-    Darwin*)    machine=MacOS;;
-    *)          machine="UNKNOWN:$unameOut";;
-esac
-
-if [ "$machine" = "Linux" ]; then
-    unameOut="$(uname -v)"
-    case "$unameOut" in
-        *Ubuntu*)    machine=Ubuntu;;
-        *)           machine="UNKNOWN:$unameOut";;
-    esac
-fi
-
-if [[ "$machine" == UNKNOWN:* ]]; then
-    read -r -p "Unknown installation ($machine); Assume [U]buntu [M]acOS or [A]rch? " response
-    case "$response" in
-        [uU])  machine=Ubuntu;;
-        [mM])  machine=MacOS;;
-        [aA])  machine=Arch;;
-        *)     printf '\e[31;1m%s\e[0m\n' "Unsupported environment: '$machine'" 1>&2; exit 1;;
-    esac
-fi
-
-export MACHINE=$machine
-
-# --- Self-elevate to root if needed (not on macOS — Homebrew refuses root) ---
-if [ "$(id -u)" -ne 0 ] && [ "$MACHINE" != "MacOS" ]; then
-    printf '\e[34m%s\e[0m\n' "Root privileges required. Re-running with sudo..." 1>&2
-    exec sudo --preserve-env=MACHINE "$0" "$@"
-fi
-
-# --- Derive target user and home (same as install.sh) ---
-if [ -n "${SUDO_USER:-}" ]; then
-    TARGET_USER="$SUDO_USER"
-    if command -v getent &>/dev/null; then
-        TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
-    else
-        TARGET_HOME="$(dscl . -read /Users/"$TARGET_USER" NFSHomeDirectory | awk '{print $2}')"
-    fi
-else
-    TARGET_USER="${USER:-root}"
-    TARGET_HOME="${HOME:-/root}"
-fi
-export TARGET_USER TARGET_HOME
-
-# --- Helpers ---
-run_as_user() {
-    if [ "$(id -u)" = "$(id -u "$TARGET_USER" 2>/dev/null)" ]; then
-        "$@"
-    else
-        sudo -Hu "$TARGET_USER" "$@"
-    fi
-}
-
-run_as_root() {
-    if [ "$(id -u)" -eq 0 ]; then
-        "$@"
-    else
-        sudo "$@"
-    fi
-}
-
-DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$(cd "$(dirname "$0")" && pwd)/common.sh"
 
 printf '\n\e[34;1m%s\e[0m\n\n' "=== Dotfiles Update ($MACHINE) ===" 1>&2
 
@@ -76,7 +8,7 @@ printf '\n\e[34;1m%s\e[0m\n\n' "=== Dotfiles Update ($MACHINE) ===" 1>&2
 printf '\e[34m%s\e[0m\n' "Updating system packages (zsh, lsd, direnv)..." 1>&2
 if [ "$MACHINE" = "Ubuntu" ]; then
     apt-get update
-    apt-get upgrade -y zsh lsd direnv
+    apt-get install --only-upgrade -y zsh lsd direnv
 elif [ "$MACHINE" = "MacOS" ]; then
     brew upgrade zsh lsd direnv starship
 elif [ "$MACHINE" = "Arch" ]; then
