@@ -118,4 +118,3 @@ run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/zimfw.z
 chown -R "$TARGET_USER":"$TARGET_USER" "$TARGET_HOME/.zim" 2>/dev/null || true
 
 printf '\n\e[32;1m%s\e[0m\n' "Done! Restart your shell (logout may be required for zsh also)." 1>&2
-
