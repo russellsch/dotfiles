@@ -2,7 +2,8 @@
 
 set -eu
 
-export ZSH_INSTALL_DIR=$(pwd)
+ZSH_INSTALL_DIR=$(pwd)
+export ZSH_INSTALL_DIR
 
 printf '\n\e[34;1m%s\e[0m\n\n' "--------ZSH Installation--------" 1>&2
 
@@ -69,6 +70,7 @@ elif [ "$MACHINE" = "Arch" ]; then
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing thefuck..." 1>&2
+# shellcheck disable=SC2016
 run_as_user bash -c 'export PATH="$HOME/.local/bin:$PATH" && uv tool install thefuck'
 
 printf '\e[34m%s\e[0m\n' "Installing direnv..." 1>&2
@@ -99,7 +101,7 @@ fi
 # --- Set default shell ---
 if [ "$DOTFILES_SKIP_CHSH" != "true" ]; then
     if [ "$MACHINE" = "MacOS" ]; then
-        echo "$(which zsh)" | run_as_root tee -a /etc/shells > /dev/null
+        which zsh | run_as_root tee -a /etc/shells > /dev/null
     fi
     printf '\e[34m%s\e[0m\n' "Updating shell..." 1>&2
     if ! run_as_root chsh -s "$(which zsh)" "$TARGET_USER" 2>/dev/null; then

@@ -28,9 +28,11 @@ run_as_user "$TARGET_HOME/.fzf/install" --bin
 
 # --- Update uv + thefuck ---
 printf '\e[34m%s\e[0m\n' "Updating uv..." 1>&2
+# shellcheck disable=SC2016
 run_as_user bash -c 'export PATH="$HOME/.local/bin:$PATH" && uv self update'
 
 printf '\e[34m%s\e[0m\n' "Updating thefuck..." 1>&2
+# shellcheck disable=SC2016
 run_as_user bash -c 'export PATH="$HOME/.local/bin:$PATH" && uv tool upgrade thefuck'
 
 # --- Zimfw update/install/compile ---

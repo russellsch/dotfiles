@@ -42,7 +42,7 @@ if [ -z "${UV_SKIP_INSTALL:-}" ] && ! run_as_user uv --version &>/dev/null; then
 fi
 
 # Setup zsh
-(cd zsh ; ./install.sh)
+(cd zsh || exit 1; ./install.sh)
 
 # Setup vscode
 # TODO
