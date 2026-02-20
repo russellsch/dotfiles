@@ -23,7 +23,11 @@ fi
 
 # --- Update fzf ---
 printf '\e[34m%s\e[0m\n' "Updating fzf..." 1>&2
-run_as_user git -C "$TARGET_HOME/.fzf" pull
+if [ -d "$TARGET_HOME/.fzf" ]; then
+    run_as_user git -C "$TARGET_HOME/.fzf" pull
+else
+    run_as_user git clone --depth 1 https://github.com/junegunn/fzf.git "$TARGET_HOME/.fzf"
+fi
 run_as_user "$TARGET_HOME/.fzf/install" --bin
 
 # --- Update uv + thefuck ---
