@@ -5,6 +5,10 @@ export FZF_DEFAULT_OPTS=" \
   --color=marker:#f4dbd6,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796 \
   --color=border:#494d64"
 
+# --- Autosuggestions tuning (must be set BEFORE zim init) ---
+# magic-enter rebinds ^M to 'buffer-empty', so we must clear on that widget too
+ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(accept-line buffer-empty)
+
 # --- zimfw bootstrap ---
 ZIM_HOME=~/.zim
 [[ -f ${ZIM_HOME}/init.zsh ]] || source ${ZIM_HOME}/zimfw.zsh init -q
