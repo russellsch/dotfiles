@@ -10,12 +10,9 @@ zmodule archive
 
 zmodule shanwker1223/zim-alias-finder
 
-#zmodule MichaelAquilina/zsh-you-should-use
-
-#zmodule zsh-users/zsh-completions --fpath src
 # fzf-tab must load after completion but before widget-wrapping plugins
 zmodule Aloxaf/fzf-tab
+
 # syntax highlighting before autosuggestions; autosuggestions must be last
 zmodule zdharma-continuum/fast-syntax-highlighting
 zmodule zsh-users/zsh-autosuggestions
-#zmodule djui/alias-tips
