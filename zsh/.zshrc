@@ -26,7 +26,8 @@ eval "$(starship init zsh)"
 path+=("$HOME/.local/bin")  # Used for uv
 
 # --- Git aliases ---
-alias gw='git worktree'
+alias Gw='git worktree'
+alias Gpo='git push origin'
 
 # Other aliases
 if [[ "$TERM" == "linux" ]]; then
