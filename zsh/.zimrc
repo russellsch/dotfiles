@@ -10,6 +10,8 @@ zmodule archive
 
 zmodule shanwker1223/zim-alias-finder --tag v1.0.0
 
+zmodule ${0:A:h}/hydra-complete
+
 # fzf-tab must load after completion but before widget-wrapping plugins
 zmodule Aloxaf/fzf-tab --tag v1.2.0
 

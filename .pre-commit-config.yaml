@@ -20,7 +20,7 @@ repos:
     hooks:
       - id: shellcheck
         args: ["-x"]  # follow sourced files
-        exclude: '\.zsh(rc|env)$'  # zsh config files use zsh-specific syntax
+        exclude: '\.zsh(rc|env|)$'  # zsh files use zsh-specific syntax unsupported by shellcheck
 
   # Shell formatting
   - repo: https://github.com/scop/pre-commit-shfmt
