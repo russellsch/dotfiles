@@ -128,7 +128,23 @@ else
     print_row "zimfw/install" "${old_zim_sha:0:7}" "FAILED"
 fi
 
-# 4. zimrc module tags
+# 4. catppuccin/zsh-fsh SHA in common.sh
+
+old_fsh_sha=$(get_var "$common" CATPPUCCIN_FSH_SHA)
+new_fsh_sha=$(github_head_sha "catppuccin/zsh-fsh") || { fail "catppuccin/zsh-fsh"; new_fsh_sha=""; }
+
+if [ -n "$new_fsh_sha" ]; then
+    if [ "$old_fsh_sha" != "$new_fsh_sha" ]; then
+        update_var "$common" CATPPUCCIN_FSH_SHA "$new_fsh_sha"
+        # Update the inline date comment
+        sed -i "s|catppuccin/zsh-fsh ([0-9-]*)|catppuccin/zsh-fsh (${today})|" "$common"
+    fi
+    print_row "catppuccin/zsh-fsh" "${old_fsh_sha:0:7}" "${new_fsh_sha:0:7}" "($today)"
+else
+    print_row "catppuccin/zsh-fsh" "${old_fsh_sha:0:7}" "FAILED"
+fi
+
+# 5. Zimrc module tags
 
 zimrc="$DOTFILES_DIR/zsh/.zimrc"
 
@@ -154,7 +170,7 @@ bump_zimrc_module "fzf-tab"             "Aloxaf/fzf-tab"
 bump_zimrc_module "fast-syntax-high."   "zdharma-continuum/fast-syntax-highlighting"
 bump_zimrc_module "zsh-autosuggestions" "zsh-users/zsh-autosuggestions"
 
-# 5. Pre-commit hooks
+# 6. Pre-commit hooks
 
 if command -v pre-commit &>/dev/null; then
     printf '  %-22s %s\n' "pre-commit hooks" "(via pre-commit autoupdate --freeze)"

@@ -61,8 +61,11 @@ run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/zimfw.z
 run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/zimfw.zsh install"
 run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/zimfw.zsh compile"
 
-# Re-apply fast-syntax-highlighting theme (zimfw update may reset processed theme files)
-printf '\e[34m%s\e[0m\n' "Re-applying fast-syntax-highlighting theme..." 1>&2
+# Update and re-apply Catppuccin theme for fast-syntax-highlighting
+printf '\e[34m%s\e[0m\n' "Updating fast-syntax-highlighting theme..." 1>&2
+run_as_user mkdir -p "$TARGET_HOME/.config/fsh"
+curl --proto '=https' --tlsv1.2 -fsSL -o "$TARGET_HOME/.config/fsh/catppuccin-macchiato.ini" \
+    "https://raw.githubusercontent.com/catppuccin/zsh-fsh/${CATPPUCCIN_FSH_SHA}/themes/catppuccin-macchiato.ini"
 run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/init.zsh; fast-theme XDG:catppuccin-macchiato" &>/dev/null || true
 
 # --- Verify starship config symlinks ---
@@ -90,16 +93,6 @@ for cfg in config.yaml colors.yaml; do
         ok=false
     fi
 done
-
-printf '\e[34m%s\e[0m\n' "Verifying fsh config symlinks..." 1>&2
-link="$TARGET_HOME/.config/fsh/catppuccin-macchiato.ini"
-target="$DOTFILES_DIR/zsh/fsh/catppuccin-macchiato.ini"
-if [ -L "$link" ] && [ "$(readlink "$link")" = "$target" ]; then
-    printf '  ✓ %s → %s\n' "$link" "$target" 1>&2
-else
-    printf '  \e[33m✗ %s is not linked to %s\e[0m\n' "$link" "$target" 1>&2
-    ok=false
-fi
 
 printf '\e[34m%s\e[0m\n' "Starship version:" 1>&2
 run_as_user starship --version 1>&2

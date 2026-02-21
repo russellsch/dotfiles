@@ -114,9 +114,10 @@ run_as_user mkdir -p "$TARGET_HOME/.config/lsd"
 ln -sfn "$ZSH_INSTALL_DIR/lsd/config.yaml" "$TARGET_HOME/.config/lsd/config.yaml"
 ln -sfn "$ZSH_INSTALL_DIR/lsd/colors.yaml" "$TARGET_HOME/.config/lsd/colors.yaml"
 
-# Create fsh config dir and link Catppuccin theme for fast-syntax-highlighting
+# Download Catppuccin theme for fast-syntax-highlighting
 run_as_user mkdir -p "$TARGET_HOME/.config/fsh"
-ln -sfn "$ZSH_INSTALL_DIR/fsh/catppuccin-macchiato.ini" "$TARGET_HOME/.config/fsh/catppuccin-macchiato.ini"
+curl --proto '=https' --tlsv1.2 -fsSL -o "$TARGET_HOME/.config/fsh/catppuccin-macchiato.ini" \
+    "https://raw.githubusercontent.com/catppuccin/zsh-fsh/${CATPPUCCIN_FSH_SHA}/themes/catppuccin-macchiato.ini"
 
 # --- Set default shell ---
 if [ "$DOTFILES_SKIP_CHSH" != "true" ]; then
