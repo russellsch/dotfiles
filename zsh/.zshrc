@@ -71,6 +71,9 @@ WORDCHARS=${WORDCHARS/\/}         # Treat / as a word boundary
 bindkey '\e[1;3C' forward-word    # Alt+Right
 bindkey '\e[1;3D' backward-word   # Alt+Left
 
+# Double-Escape to clear the current input line
+bindkey '\e\e' kill-whole-line
+
 # --- Source bash profile ---
 [[ -f ~/.bash_profile ]] && source ~/.bash_profile
 
