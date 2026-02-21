@@ -12,6 +12,14 @@ This pairs with [direnv](https://direnv.net/) — each project's `.envrc` sets `
 
 ### 1. Add to `.zimrc`
 
+**GitHub (for standalone use):**
+
+```zsh
+zmodule russelsch/dotfiles --root zsh/hydra-complete
+```
+
+**Local path (from within this dotfiles repo):**
+
 ```zsh
 zmodule ${0:A:h}/hydra-complete
 ```
