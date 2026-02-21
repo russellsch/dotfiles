@@ -72,21 +72,7 @@ bindkey '\e[1;3C' forward-word    # Alt+Right
 bindkey '\e[1;3D' backward-word   # Alt+Left
 
 # Double-Escape to clear the current input line
-zmodload zsh/datetime  # provides EPOCHREALTIME
-_double_escape_threshold=200  # milliseconds
-_last_escape_time=0
-double-escape-clear-line() {
-  local now=$((EPOCHREALTIME * 1000))
-  local elapsed=$(( now - _last_escape_time ))
-  if (( elapsed <= _double_escape_threshold )); then
-    zle kill-whole-line
-    _last_escape_time=0
-  else
-    _last_escape_time=$now
-  fi
-}
-zle -N double-escape-clear-line
-bindkey '\e\e' double-escape-clear-line
+bindkey '\e\e' kill-whole-line
 
 # --- Source bash profile ---
 [[ -f ~/.bash_profile ]] && source ~/.bash_profile
