@@ -42,11 +42,13 @@ Add to your VS Code user `settings.json`:
 {
   "dotfiles.repository": "YOUR_USER/dotfiles",
   "dotfiles.installCommand": "install.sh",
-  "terminal.integrated.defaultProfile.linux": "zsh"
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "terminal.integrated.sendKeybindingsToShell": true
 }
 ```
 
 The terminal setting ensures VS Code opens zsh in containers. It only applies to Linux remotes and falls back silently if zsh isn't installed.
+Additionally, sendKeybindingsToShell allows Alt+Arrow key bindings (word movement, autosuggestion partial accept) pass through to integrated terminal.
 
 For GitHub Codespaces, configure the same under **Settings > Codespaces > Dotfiles** in your GitHub account.
 
