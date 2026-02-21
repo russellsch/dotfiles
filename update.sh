@@ -61,6 +61,13 @@ run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/zimfw.z
 run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/zimfw.zsh install"
 run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/zimfw.zsh compile"
 
+# Update and re-apply Catppuccin theme for fast-syntax-highlighting
+printf '\e[34m%s\e[0m\n' "Updating fast-syntax-highlighting theme..." 1>&2
+run_as_user mkdir -p "$TARGET_HOME/.config/fsh"
+curl --proto '=https' --tlsv1.2 -fsSL -o "$TARGET_HOME/.config/fsh/catppuccin-macchiato.ini" \
+    "https://raw.githubusercontent.com/catppuccin/zsh-fsh/${CATPPUCCIN_FSH_SHA}/themes/catppuccin-macchiato.ini"
+run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/init.zsh; fast-theme XDG:catppuccin-macchiato" &>/dev/null || true
+
 # --- Verify starship config symlinks ---
 printf '\e[34m%s\e[0m\n' "Verifying starship config symlinks..." 1>&2
 ok=true
