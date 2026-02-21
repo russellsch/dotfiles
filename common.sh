@@ -42,13 +42,23 @@ if [ -z "${MACHINE:-}" ]; then
         fi
     fi
 
-    # If this is a Linux system, check for Ubuntu vs unknown
+    # If this is a Linux system, detect the distro
     if [ "$machine" = "Linux" ]; then
-        unameOut="$(uname -v)"
-        case "$unameOut" in
-            *Ubuntu*)    machine=Ubuntu;;
-            *)           machine="UNKNOWN:$unameOut";;
-        esac
+        if [ -f /etc/os-release ]; then
+            # shellcheck disable=SC1091
+            . /etc/os-release
+            case "${ID:-} ${ID_LIKE:-}" in
+                *ubuntu*) machine=Ubuntu;;
+                *arch*)   machine=Arch;;
+                *)        unameOut="$(uname -v)"; machine="UNKNOWN:$unameOut";;
+            esac
+        else
+            unameOut="$(uname -v)"
+            case "$unameOut" in
+                *Ubuntu*)    machine=Ubuntu;;
+                *)           machine="UNKNOWN:$unameOut";;
+            esac
+        fi
     fi
 
     # If this is an unknown distro, ask user to override using Ubuntu or MacOS config
