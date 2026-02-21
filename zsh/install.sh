@@ -114,6 +114,10 @@ run_as_user mkdir -p "$TARGET_HOME/.config/lsd"
 ln -sfn "$ZSH_INSTALL_DIR/lsd/config.yaml" "$TARGET_HOME/.config/lsd/config.yaml"
 ln -sfn "$ZSH_INSTALL_DIR/lsd/colors.yaml" "$TARGET_HOME/.config/lsd/colors.yaml"
 
+# Create fsh config dir and link Catppuccin theme for fast-syntax-highlighting
+run_as_user mkdir -p "$TARGET_HOME/.config/fsh"
+ln -sfn "$ZSH_INSTALL_DIR/fsh/catppuccin-macchiato.ini" "$TARGET_HOME/.config/fsh/catppuccin-macchiato.ini"
+
 # --- Set default shell ---
 if [ "$DOTFILES_SKIP_CHSH" != "true" ]; then
     if [ "$MACHINE" = "MacOS" ]; then
@@ -132,5 +136,9 @@ printf '\e[34m%s\e[0m\n' "Installing zsh plugins via zimfw..." 1>&2
 run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/zimfw.zsh install"
 
 chown -R "$TARGET_USER":"$TARGET_USER" "$TARGET_HOME/.zim" 2>/dev/null || true
+
+# --- Activate Catppuccin theme for fast-syntax-highlighting ---
+printf '\e[34m%s\e[0m\n' "Activating fast-syntax-highlighting theme..." 1>&2
+run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/init.zsh; fast-theme XDG:catppuccin-macchiato" &>/dev/null || true
 
 printf '\n\e[32;1m%s\e[0m\n' "Done! Restart your shell (logout may be required for zsh also)." 1>&2
