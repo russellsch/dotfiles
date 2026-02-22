@@ -41,7 +41,7 @@ _hydra_hl_value() {
         _hydra_hl $_off $(( _off + _vlen )) for-loop-number; return
     fi
     # Float: digits with dot and/or exponent
-    if [[ "$_v" = [+-]#[0-9._]##[eE][+-]#[0-9_]## || "$_v" = [+-]#[0-9_]#.[0-9_]# || "$_v" = [+-]#[0-9_]#. ]]; then
+    if [[ "$_v" = [+-]#[0-9_]##(.[0-9_]#|)[eE][+-]#[0-9_]## || "$_v" = [+-]#[0-9_]#.[0-9_]# || "$_v" = [+-]#[0-9_]#. ]]; then
         _hydra_hl $_off $(( _off + _vlen )) for-loop-number; return
     fi
 
@@ -95,9 +95,8 @@ _hydra_hl_arglist() {
 
     (( _llen == 0 )) && return
 
-    local -a _chars=( ${(s::)_list} )
     for (( _i=0; _i < _llen; _i++ )); do
-        _ch="${_chars[$((_i+1))]}"
+        _ch="$_list[$((_i+1))]"
         case "$_ch" in
             '('|'['|'{') (( _depth++ )) ;;
             ')'|']'|'}') (( _depth-- )) ;;
@@ -137,9 +136,8 @@ _hydra_hl_dict() {
 
     (( _dlen == 0 )) && return
 
-    local -a _chars=( ${(s::)_dict} )
     for (( _i=0; _i < _dlen; _i++ )); do
-        _ch="${_chars[$((_i+1))]}"
+        _ch="$_dict[$((_i+1))]"
         case "$_ch" in
             '('|'['|'{') (( _depth++ )) ;;
             ')'|']'|'}') (( _depth-- )) ;;
@@ -181,9 +179,8 @@ _hydra_hl_unquoted() {
         _after="${_rest#*\$\{}"
         # Find matching }
         _depth=1
-        local -a _achars=( ${(s::)_after} )
         for (( _j=0; _j < ${#_after}; _j++ )); do
-            case "${_achars[$((_j+1))]}" in
+            case "$_after[$((_j+1))]" in
                 '{') (( _depth++ )) ;;
                 '}') (( _depth-- )); (( _depth == 0 )) && break ;;
             esac

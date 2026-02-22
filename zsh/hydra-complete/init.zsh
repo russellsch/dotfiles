@@ -1,8 +1,6 @@
 # Hydra tab completion driven by HYDRA_COMPLETE env var (set via direnv)
 # Usage: export HYDRA_COMPLETE="svml-train other-cli" in .envrc
 
-autoload -Uz bashcompinit && bashcompinit
-
 typeset -gA _hydra_complete_loaded=()
 
 # Source the f-sy-h chroma for Hydra override grammar highlighting
@@ -11,6 +9,10 @@ typeset -gA _hydra_chroma_registered=()
 
 _hydra_complete_hook() {
     [[ -z "$HYDRA_COMPLETE" ]] && return
+    if ! (( ${+_hydra_bashcompinit_done} )); then
+        autoload -Uz bashcompinit && bashcompinit
+        _hydra_bashcompinit_done=1
+    fi
     local cmd
     for cmd in ${(s: :)HYDRA_COMPLETE}; do
         # Tab completion (existing logic)

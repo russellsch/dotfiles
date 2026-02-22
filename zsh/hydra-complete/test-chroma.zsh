@@ -124,6 +124,12 @@ _assert_reply "value: +2.5 → number" "0 4 for-loop-number"
 _reset; _hydra_hl_value "1." 0
 _assert_reply "value: 1. (trailing dot) → number" "0 2 for-loop-number"
 
+_reset; _hydra_hl_value "1.5e3" 0
+_assert_reply "value: 1.5e3 → number (float with dot+exp)" "0 5 for-loop-number"
+
+_reset; _hydra_hl_value "1.2.3.4e5" 0
+_assert_reply "value: 1.2.3.4e5 → not a number (multi-dot rejected)"
+
 # --- _hydra_hl_value: quoted strings ---
 _reset; _hydra_hl_value "'hello'" 0
 _assert_reply "value: 'hello' → single-quoted" "0 7 single-quoted-argument"
