@@ -18,6 +18,8 @@ _hydra_hl_value() {
 
     (( _vlen == 0 )) && return
 
+    local _vl="${_v:l}"
+
     # Quoted strings
     if [[ "$_v" = \'*\' && _vlen -ge 2 ]]; then
         _hydra_hl $_off $(( _off + _vlen )) single-quoted-argument
@@ -29,16 +31,10 @@ _hydra_hl_value() {
     fi
 
     # Case-insensitive keyword match
-    case "${_v:l}" in
-        true|false)
-            _hydra_hl $_off $(( _off + _vlen )) reserved-word; return ;;
-        null)
+    case "$_vl" in
+        true|false|null|inf|-inf|+inf|nan)
             _hydra_hl $_off $(( _off + _vlen )) reserved-word; return ;;
     esac
-    # inf/nan (case-insensitive)
-    if [[ "${_v:l}" = inf || "${_v:l}" = -inf || "${_v:l}" = nan || "${_v:l}" = +inf ]]; then
-        _hydra_hl $_off $(( _off + _vlen )) reserved-word; return
-    fi
 
     # Integer: optional sign, digits (underscore grouping allowed)
     if [[ "$_v" = [+-]#[0-9][0-9_]# && "$_v" != *[a-zA-Z]* ]]; then
@@ -99,8 +95,9 @@ _hydra_hl_arglist() {
 
     (( _llen == 0 )) && return
 
+    local -a _chars=( ${(s::)_list} )
     for (( _i=0; _i < _llen; _i++ )); do
-        _ch="${_list:$_i:1}"
+        _ch="${_chars[$((_i+1))]}"
         case "$_ch" in
             '('|'['|'{') (( _depth++ )) ;;
             ')'|']'|'}') (( _depth-- )) ;;
@@ -140,8 +137,9 @@ _hydra_hl_dict() {
 
     (( _dlen == 0 )) && return
 
+    local -a _chars=( ${(s::)_dict} )
     for (( _i=0; _i < _dlen; _i++ )); do
-        _ch="${_dict:$_i:1}"
+        _ch="${_chars[$((_i+1))]}"
         case "$_ch" in
             '('|'['|'{') (( _depth++ )) ;;
             ')'|']'|'}') (( _depth-- )) ;;
@@ -183,8 +181,9 @@ _hydra_hl_unquoted() {
         _after="${_rest#*\$\{}"
         # Find matching }
         _depth=1
+        local -a _achars=( ${(s::)_after} )
         for (( _j=0; _j < ${#_after}; _j++ )); do
-            case "${_after:$_j:1}" in
+            case "${_achars[$((_j+1))]}" in
                 '{') (( _depth++ )) ;;
                 '}') (( _depth-- )); (( _depth == 0 )) && break ;;
             esac
