@@ -78,7 +78,7 @@ _source_uv_env() {
 # Source early so an already-installed uv at a non-standard location (e.g.
 # /opt/bin) is discovered before we download.  Using `command -v` (instead of
 # run_as_user) avoids sudo resetting PATH and hiding the binary.
-_source_uv_env
+_source_uv_env || true
 if [ -z "${UV_SKIP_INSTALL:-}" ] && ! command -v uv &>/dev/null; then
     # Download installer to a temp file instead of piping (curl|sh swallows errors)
     curl --proto '=https' --tlsv1.2 -LsSf -o /tmp/uv-installer.sh \
@@ -86,7 +86,7 @@ if [ -z "${UV_SKIP_INSTALL:-}" ] && ! command -v uv &>/dev/null; then
     run_as_user sh /tmp/uv-installer.sh
     rm -f /tmp/uv-installer.sh
     # Re-source to pick up the newly created env file
-    _source_uv_env
+    _source_uv_env || true
 fi
 unset -f _source_uv_env
 # Verify uv is available
