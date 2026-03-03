@@ -48,7 +48,17 @@ fi
 
 printf '\e[34m%s\e[0m\n' "Installing Dependency: uv ..." 1>&2
 if [ -z "${UV_SKIP_INSTALL:-}" ] && ! run_as_user uv --version &>/dev/null; then
-    run_as_user sh -c 'curl --proto "=https" --tlsv1.2 -LsSf https://github.com/astral-sh/uv/releases/download/0.10.2/uv-installer.sh | sh'
+    # Download installer to a temp file instead of piping (curl|sh swallows errors)
+    curl --proto '=https' --tlsv1.2 -LsSf -o /tmp/uv-installer.sh \
+        https://github.com/astral-sh/uv/releases/download/0.10.2/uv-installer.sh
+    run_as_user sh /tmp/uv-installer.sh
+    rm -f /tmp/uv-installer.sh
+fi
+# Verify uv is available (installer may put it in ~/.local/bin or ~/.cargo/bin)
+if ! run_as_user uv --version &>/dev/null; then
+    printf '\e[31;1m%s\e[0m\n' "ERROR: uv installation failed — uv not found on PATH" 1>&2
+    printf '\e[31m%s\e[0m\n' "PATH=$PATH" 1>&2
+    exit 1
 fi
 
 # Setup zsh

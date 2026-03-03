@@ -122,6 +122,19 @@ else
 fi
 export TARGET_USER TARGET_HOME
 
+# --- Ensure user-local bin dirs are on PATH ---
+# The uv installer (cargo-dist) may use ~/.cargo/bin; other tools use ~/.local/bin.
+# Adding both here ensures tools are findable in child processes (e.g. zsh/install.sh)
+# without relying on profile files that non-interactive shells don't source.
+case ":$PATH:" in
+    *":$TARGET_HOME/.local/bin:"*) ;;
+    *) export PATH="$TARGET_HOME/.local/bin:$PATH" ;;
+esac
+case ":$PATH:" in
+    *":$TARGET_HOME/.cargo/bin:"*) ;;
+    *) export PATH="$TARGET_HOME/.cargo/bin:$PATH" ;;
+esac
+
 # --- Pinned dependency versions ---
 STARSHIP_VERSION="v1.24.2"
 FZF_VERSION="v0.68.0"
