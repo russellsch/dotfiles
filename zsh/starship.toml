@@ -58,6 +58,7 @@ disabled = false
 Pop = ' '
 Macos = " "
 Mint = '󰣭 '
+Ubuntu = ' '
 
 # Palette definitions
 [palettes.catppuccin_latte]
