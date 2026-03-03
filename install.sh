@@ -62,11 +62,21 @@ if [ -z "${UV_SKIP_INSTALL:-}" ] && ! run_as_user uv --version &>/dev/null; then
     # Download installer to a temp file instead of piping (curl|sh swallows errors)
     curl --proto '=https' --tlsv1.2 -LsSf -o /tmp/uv-installer.sh \
         https://github.com/astral-sh/uv/releases/download/0.10.2/uv-installer.sh
-    run_as_user sh /tmp/uv-installer.sh
+    # Capture output so we can parse the install directory (the cargo-dist installer
+    # may place uv somewhere unexpected like /opt/bin based on container config)
+    _uv_out=$(run_as_user sh /tmp/uv-installer.sh 2>&1) || true
+    printf '%s\n' "$_uv_out" 1>&2
     rm -f /tmp/uv-installer.sh
+    # The installer prints "installing to <dir>" — add that dir to PATH
+    _uv_dir=$(printf '%s\n' "$_uv_out" | sed -n 's/^installing to //p')
+    if [ -n "$_uv_dir" ]; then
+        case ":$PATH:" in
+            *":$_uv_dir:"*) ;;
+            *) export PATH="$_uv_dir:$PATH" ;;
+        esac
+    fi
 fi
-# Verify uv is available (common.sh already added ~/.local/bin, ~/.cargo/bin,
-# and $CARGO_HOME/bin to PATH — so uv is found wherever the installer placed it)
+# Verify uv is available
 if ! run_as_user uv --version &>/dev/null; then
     printf '\e[31;1m%s\e[0m\n' "ERROR: uv installation failed — uv not found on PATH" 1>&2
     printf '\e[31m%s\e[0m\n' "PATH=$PATH" 1>&2

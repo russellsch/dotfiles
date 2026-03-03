@@ -77,4 +77,8 @@ bindkey '\e\e' kill-whole-line
 # --- Source bash profile ---
 [[ -f ~/.bash_profile ]] && source ~/.bash_profile
 
-. "$HOME/.local/bin/env"
+# Source uv env file (sets up PATH for uv — location varies by installer)
+for _uvenv in "$HOME/.local/bin/env" "$HOME/.cargo/bin/env" ${CARGO_HOME:+"$CARGO_HOME/bin/env"}; do
+    [[ -f "$_uvenv" ]] && . "$_uvenv" && break
+done
+unset _uvenv
