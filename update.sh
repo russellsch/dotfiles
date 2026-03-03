@@ -6,34 +6,53 @@ printf '\n\e[34;1m%s\e[0m\n\n' "=== Dotfiles Update ($MACHINE) ===" 1>&2
 
 # --- Update system packages ---
 printf '\e[34m%s\e[0m\n' "Updating system packages (zsh, direnv)..." 1>&2
-if [ "$MACHINE" = "Ubuntu" ]; then
-    apt-get update
-    apt-get install --only-upgrade -y zsh direnv
-elif [ "$MACHINE" = "MacOS" ]; then
+if [ "$MACHINE" = "MacOS" ]; then
     brew upgrade zsh lsd direnv starship
-elif [ "$MACHINE" = "Arch" ]; then
-    pacman -Syu --noconfirm zsh lsd direnv
+elif [ "$CAN_ROOT" = "true" ]; then
+    if [ "$MACHINE" = "Ubuntu" ]; then
+        apt-get update
+        apt-get install --only-upgrade -y zsh direnv
+    elif [ "$MACHINE" = "Arch" ]; then
+        pacman -Syu --noconfirm zsh lsd direnv
+    fi
+else
+    printf '\e[33m%s\e[0m\n' "Rootless mode: skipping system package updates" 1>&2
 fi
 
 # --- Update starship binary ---
 if [ "$MACHINE" != "MacOS" ]; then
     printf '\e[34m%s\e[0m\n' "Updating starship..." 1>&2
-    curl --proto '=https' --tlsv1.2 -fsSL https://starship.rs/install.sh | sh -s -- -y -v "$STARSHIP_VERSION"
+    if [ "$CAN_ROOT" = "true" ]; then
+        curl --proto '=https' --tlsv1.2 -fsSL https://starship.rs/install.sh | sh -s -- -y -v "$STARSHIP_VERSION"
+    else
+        run_as_user mkdir -p "$TARGET_HOME/.local/bin"
+        curl --proto '=https' --tlsv1.2 -fsSL https://starship.rs/install.sh | sh -s -- -y -v "$STARSHIP_VERSION" -b "$TARGET_HOME/.local/bin"
+    fi
 fi
 
-# --- Update lsd from GitHub releases (Ubuntu; macOS/Arch handled by brew/pacman above) ---
-if [ "$MACHINE" = "Ubuntu" ]; then
+# --- Update lsd from GitHub releases (Ubuntu/Arch rootless; macOS/Arch-root handled above) ---
+if [ "$MACHINE" = "Ubuntu" ] || { [ "$MACHINE" = "Arch" ] && [ "$CAN_ROOT" = "false" ]; }; then
     printf '\e[34m%s\e[0m\n' "Updating lsd..." 1>&2
     case "$(uname -m)" in
-        x86_64)  LSD_ARCH=amd64 ;;
-        aarch64) LSD_ARCH=arm64 ;;
-        *)       LSD_ARCH=amd64 ;;
+        x86_64)  LSD_ARCH=amd64; LSD_TRIPLE=x86_64-unknown-linux-gnu ;;
+        aarch64) LSD_ARCH=arm64; LSD_TRIPLE=aarch64-unknown-linux-gnu ;;
+        *)       LSD_ARCH=amd64; LSD_TRIPLE=x86_64-unknown-linux-gnu ;;
     esac
-    LSD_DEB="lsd_${LSD_VERSION#v}_${LSD_ARCH}.deb"
-    curl --proto '=https' --tlsv1.2 -fsSL -o "/tmp/$LSD_DEB" \
-        "https://github.com/lsd-rs/lsd/releases/download/${LSD_VERSION}/${LSD_DEB}"
-    dpkg -i "/tmp/$LSD_DEB"
-    rm -f "/tmp/$LSD_DEB"
+    if [ "$CAN_ROOT" = "true" ]; then
+        LSD_DEB="lsd_${LSD_VERSION#v}_${LSD_ARCH}.deb"
+        curl --proto '=https' --tlsv1.2 -fsSL -o "/tmp/$LSD_DEB" \
+            "https://github.com/lsd-rs/lsd/releases/download/${LSD_VERSION}/${LSD_DEB}"
+        dpkg -i "/tmp/$LSD_DEB"
+        rm -f "/tmp/$LSD_DEB"
+    else
+        run_as_user mkdir -p "$TARGET_HOME/.local/bin"
+        LSD_TAR="lsd-${LSD_VERSION}-${LSD_TRIPLE}.tar.gz"
+        curl --proto '=https' --tlsv1.2 -fsSL -o "/tmp/$LSD_TAR" \
+            "https://github.com/lsd-rs/lsd/releases/download/${LSD_VERSION}/${LSD_TAR}"
+        tar -xf "/tmp/$LSD_TAR" -C /tmp
+        install -m 755 "/tmp/lsd-${LSD_VERSION}-${LSD_TRIPLE}/lsd" "$TARGET_HOME/.local/bin/lsd"
+        rm -rf "/tmp/$LSD_TAR" "/tmp/lsd-${LSD_VERSION}-${LSD_TRIPLE}"
+    fi
 fi
 
 # --- Update fzf ---
@@ -54,6 +73,20 @@ run_as_user bash -c 'export PATH="$HOME/.local/bin:$PATH" && uv self update'
 printf '\e[34m%s\e[0m\n' "Updating thefuck..." 1>&2
 # shellcheck disable=SC2016
 run_as_user bash -c 'export PATH="$HOME/.local/bin:$PATH" && uv tool upgrade thefuck'
+
+# --- Update direnv (rootless only — system installs handled by package manager above) ---
+if [ "$CAN_ROOT" = "false" ] && [ "$MACHINE" != "MacOS" ]; then
+    printf '\e[34m%s\e[0m\n' "Updating direnv..." 1>&2
+    run_as_user mkdir -p "$TARGET_HOME/.local/bin"
+    case "$(uname -m)" in
+        x86_64)  DIRENV_ARCH=amd64 ;;
+        aarch64) DIRENV_ARCH=arm64 ;;
+        *)       DIRENV_ARCH=amd64 ;;
+    esac
+    curl --proto '=https' --tlsv1.2 -fsSL -o "$TARGET_HOME/.local/bin/direnv" \
+        "https://github.com/direnv/direnv/releases/download/${DIRENV_VERSION}/direnv.linux-${DIRENV_ARCH}"
+    chmod +x "$TARGET_HOME/.local/bin/direnv"
+fi
 
 # --- Zimfw update/install/compile ---
 printf '\e[34m%s\e[0m\n' "Updating zimfw modules..." 1>&2

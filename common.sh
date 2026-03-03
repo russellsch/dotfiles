@@ -87,10 +87,24 @@ else
     exit 1
 fi
 
+# --- Detect whether root privileges are available ---
+if [ "$(id -u)" -eq 0 ]; then
+    CAN_ROOT=true
+elif command -v sudo &>/dev/null && sudo -n true 2>/dev/null; then
+    CAN_ROOT=true
+else
+    CAN_ROOT=false
+fi
+export CAN_ROOT
+
 # --- Self-elevate to root if needed (not on macOS — Homebrew refuses root) ---
 if [ "$(id -u)" -ne 0 ] && [ "$MACHINE" != "MacOS" ]; then
-    printf '\e[34m%s\e[0m\n' "Root privileges required. Re-running with sudo..." 1>&2
-    exec sudo --preserve-env=DOTFILES_CONTAINER,DOTFILES_INTERACTIVE,DOTFILES_SKIP_FONTS,DOTFILES_SKIP_CHSH,MACHINE "$0" "$@"
+    if [ "$CAN_ROOT" = "true" ]; then
+        printf '\e[34m%s\e[0m\n' "Root privileges required. Re-running with sudo..." 1>&2
+        exec sudo --preserve-env=DOTFILES_CONTAINER,DOTFILES_INTERACTIVE,DOTFILES_SKIP_FONTS,DOTFILES_SKIP_CHSH,MACHINE "$0" "$@"
+    else
+        printf '\e[33m%s\e[0m\n' "No root privileges available — running in rootless mode (system packages must be pre-installed)" 1>&2
+    fi
 fi
 
 # --- Derive target user and home (never rely on $HOME under sudo) ---
@@ -114,7 +128,8 @@ FZF_VERSION="v0.68.0"
 NERD_FONTS_VERSION="v3.4.0"
 LSD_VERSION="v1.2.0"
 CATPPUCCIN_FSH_SHA="a9bdf479f8982c4b83b5c5005c8231c6b3352e2a"  # catppuccin/zsh-fsh (2026-02-21)
-export STARSHIP_VERSION FZF_VERSION NERD_FONTS_VERSION LSD_VERSION CATPPUCCIN_FSH_SHA
+DIRENV_VERSION="v2.35.0"
+export STARSHIP_VERSION FZF_VERSION NERD_FONTS_VERSION LSD_VERSION CATPPUCCIN_FSH_SHA DIRENV_VERSION
 
 # --- Helpers ---
 # Helper: run a command as TARGET_USER (skips sudo when already that user)
@@ -131,8 +146,11 @@ export -f run_as_user
 run_as_root() {
     if [ "$(id -u)" -eq 0 ]; then
         "$@"
-    else
+    elif [ "$CAN_ROOT" = "true" ]; then
         sudo "$@"
+    else
+        printf '\e[33m%s\e[0m\n' "Skipping (requires root): $*" 1>&2
+        return 1
     fi
 }
 export -f run_as_root
