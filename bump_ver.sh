@@ -80,21 +80,25 @@ old_starship=$(get_var "$common" STARSHIP_VERSION)
 old_fzf=$(get_var "$common" FZF_VERSION)
 old_nerdfonts=$(get_var "$common" NERD_FONTS_VERSION)
 old_lsd=$(get_var "$common" LSD_VERSION)
+old_direnv=$(get_var "$common" DIRENV_VERSION)
 
 new_starship=$(github_latest_release "starship/starship")    || { fail "starship/starship";    new_starship=""; }
 new_fzf=$(github_latest_release "junegunn/fzf")              || { fail "junegunn/fzf";         new_fzf=""; }
 new_nerdfonts=$(github_latest_release "ryanoasis/nerd-fonts") || { fail "ryanoasis/nerd-fonts"; new_nerdfonts=""; }
 new_lsd=$(github_latest_release "lsd-rs/lsd")                || { fail "lsd-rs/lsd";           new_lsd=""; }
+new_direnv=$(github_latest_release "direnv/direnv")           || { fail "direnv/direnv";        new_direnv=""; }
 
 if [ -n "$new_starship" ]; then update_var "$common" STARSHIP_VERSION "$new_starship"; fi
 if [ -n "$new_fzf" ]; then update_var "$common" FZF_VERSION "$new_fzf"; fi
 if [ -n "$new_nerdfonts" ]; then update_var "$common" NERD_FONTS_VERSION "$new_nerdfonts"; fi
 if [ -n "$new_lsd" ]; then update_var "$common" LSD_VERSION "$new_lsd"; fi
+if [ -n "$new_direnv" ]; then update_var "$common" DIRENV_VERSION "$new_direnv"; fi
 
 print_row "starship"    "$old_starship"  "${new_starship:-FAILED}"
 print_row "fzf"         "$old_fzf"       "${new_fzf:-FAILED}"
 print_row "nerd-fonts"  "$old_nerdfonts" "${new_nerdfonts:-FAILED}"
 print_row "lsd"         "$old_lsd"       "${new_lsd:-FAILED}"
+print_row "direnv"      "$old_direnv"    "${new_direnv:-FAILED}"
 
 # 2. Homebrew installer SHA in install.sh
 

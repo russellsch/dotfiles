@@ -8,12 +8,20 @@ export ZSH_INSTALL_DIR
 printf '\n\e[34;1m%s\e[0m\n\n' "--------ZSH Installation--------" 1>&2
 
 printf '\e[34m%s\e[0m\n' "Installing ZSH..." 1>&2
-if [ "$MACHINE" = "Ubuntu" ]; then
-    apt-get install zsh -y
-elif [ "$MACHINE" = "MacOS" ]; then
+if [ "$MACHINE" = "MacOS" ]; then
     brew install zsh
-elif [ "$MACHINE" = "Arch" ]; then
-    pacman -S zsh --noconfirm
+elif [ "$CAN_ROOT" = "true" ]; then
+    if [ "$MACHINE" = "Ubuntu" ]; then
+        apt-get install zsh -y
+    elif [ "$MACHINE" = "Arch" ]; then
+        pacman -S zsh --noconfirm
+    fi
+else
+    if ! command -v zsh &>/dev/null; then
+        printf '\e[31;1m%s\e[0m\n' "ERROR: zsh is not installed and cannot be installed without root. Install zsh in your container image." 1>&2
+        exit 1
+    fi
+    printf '\e[33m%s\e[0m\n' "Rootless mode: using pre-installed zsh ($(which zsh))" 1>&2
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing Dependency: Zim Framework..." 1>&2
@@ -50,8 +58,11 @@ fi
 printf '\e[34m%s\e[0m\n' "Installing Dependency: Starship..." 1>&2
 if [ "$MACHINE" = "MacOS" ]; then
     brew install starship
-else
+elif [ "$CAN_ROOT" = "true" ]; then
     curl --proto '=https' --tlsv1.2 -fsSL https://starship.rs/install.sh | sh -s -- -y -v "$STARSHIP_VERSION"
+else
+    run_as_user mkdir -p "$TARGET_HOME/.local/bin"
+    curl --proto '=https' --tlsv1.2 -fsSL https://starship.rs/install.sh | sh -s -- -y -v "$STARSHIP_VERSION" -b "$TARGET_HOME/.local/bin"
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing fzf (from GitHub)..." 1>&2
@@ -64,20 +75,33 @@ run_as_user "$FZF_DIR/install" --bin
 printf '\e[34m%s\e[0m\n' "Installing lsd (ls replacement)..." 1>&2
 if [ "$MACHINE" = "MacOS" ]; then
     brew install lsd
-elif [ "$MACHINE" = "Ubuntu" ]; then
-    # Install from GitHub releases for hex color support (requires >=1.1.0)
+elif [ "$MACHINE" = "Ubuntu" ] || [ "$MACHINE" = "Arch" ]; then
     case "$(uname -m)" in
-        x86_64)  LSD_ARCH=amd64 ;;
-        aarch64) LSD_ARCH=arm64 ;;
-        *)       LSD_ARCH=amd64 ;;
+        x86_64)  LSD_ARCH=amd64; LSD_TRIPLE=x86_64-unknown-linux-gnu ;;
+        aarch64) LSD_ARCH=arm64; LSD_TRIPLE=aarch64-unknown-linux-gnu ;;
+        *)       LSD_ARCH=amd64; LSD_TRIPLE=x86_64-unknown-linux-gnu ;;
     esac
-    LSD_DEB="lsd_${LSD_VERSION#v}_${LSD_ARCH}.deb"
-    curl --proto '=https' --tlsv1.2 -fsSL -o "/tmp/$LSD_DEB" \
-        "https://github.com/lsd-rs/lsd/releases/download/${LSD_VERSION}/${LSD_DEB}"
-    dpkg -i "/tmp/$LSD_DEB"
-    rm -f "/tmp/$LSD_DEB"
-elif [ "$MACHINE" = "Arch" ]; then
-    pacman -S lsd --noconfirm  # Arch repos have recent versions
+    if [ "$CAN_ROOT" = "true" ]; then
+        if [ "$MACHINE" = "Arch" ]; then
+            pacman -S lsd --noconfirm  # Arch repos have recent versions
+        else
+            # Install from GitHub releases for hex color support (requires >=1.1.0)
+            LSD_DEB="lsd_${LSD_VERSION#v}_${LSD_ARCH}.deb"
+            curl --proto '=https' --tlsv1.2 -fsSL -o "/tmp/$LSD_DEB" \
+                "https://github.com/lsd-rs/lsd/releases/download/${LSD_VERSION}/${LSD_DEB}"
+            dpkg -i "/tmp/$LSD_DEB"
+            rm -f "/tmp/$LSD_DEB"
+        fi
+    else
+        # Rootless: install binary to user directory from tar.gz
+        run_as_user mkdir -p "$TARGET_HOME/.local/bin"
+        LSD_TAR="lsd-${LSD_VERSION}-${LSD_TRIPLE}.tar.gz"
+        curl --proto '=https' --tlsv1.2 -fsSL -o "/tmp/$LSD_TAR" \
+            "https://github.com/lsd-rs/lsd/releases/download/${LSD_VERSION}/${LSD_TAR}"
+        tar -xf "/tmp/$LSD_TAR" -C /tmp
+        install -m 755 "/tmp/lsd-${LSD_VERSION}-${LSD_TRIPLE}/lsd" "$TARGET_HOME/.local/bin/lsd"
+        rm -rf "/tmp/$LSD_TAR" "/tmp/lsd-${LSD_VERSION}-${LSD_TRIPLE}"
+    fi
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing thefuck..." 1>&2
@@ -85,12 +109,25 @@ printf '\e[34m%s\e[0m\n' "Installing thefuck..." 1>&2
 run_as_user bash -c 'export PATH="$HOME/.local/bin:$PATH" && uv tool install thefuck'
 
 printf '\e[34m%s\e[0m\n' "Installing direnv..." 1>&2
-if [ "$MACHINE" = "Ubuntu" ]; then
-    apt-get install direnv -y
-elif [ "$MACHINE" = "MacOS" ]; then
+if [ "$MACHINE" = "MacOS" ]; then
     brew install direnv
-elif [ "$MACHINE" = "Arch" ]; then
-    pacman -S direnv --noconfirm
+elif [ "$CAN_ROOT" = "true" ]; then
+    if [ "$MACHINE" = "Ubuntu" ]; then
+        apt-get install direnv -y
+    elif [ "$MACHINE" = "Arch" ]; then
+        pacman -S direnv --noconfirm
+    fi
+else
+    # Rootless: install binary to user directory from GitHub
+    run_as_user mkdir -p "$TARGET_HOME/.local/bin"
+    case "$(uname -m)" in
+        x86_64)  DIRENV_ARCH=amd64 ;;
+        aarch64) DIRENV_ARCH=arm64 ;;
+        *)       DIRENV_ARCH=amd64 ;;
+    esac
+    curl --proto '=https' --tlsv1.2 -fsSL -o "$TARGET_HOME/.local/bin/direnv" \
+        "https://github.com/direnv/direnv/releases/download/${DIRENV_VERSION}/direnv.linux-${DIRENV_ARCH}"
+    chmod +x "$TARGET_HOME/.local/bin/direnv"
 fi
 
 
@@ -136,7 +173,9 @@ fi
 printf '\e[34m%s\e[0m\n' "Installing zsh plugins via zimfw..." 1>&2
 run_as_user zsh -c "export ZIM_HOME=$TARGET_HOME/.zim; source \$ZIM_HOME/zimfw.zsh install"
 
-chown -R "$TARGET_USER":"$TARGET_USER" "$TARGET_HOME/.zim" 2>/dev/null || true
+if [ "$(id -u)" -ne "$(id -u "$TARGET_USER" 2>/dev/null)" ]; then
+    chown -R "$TARGET_USER":"$TARGET_USER" "$TARGET_HOME/.zim" 2>/dev/null || true
+fi
 
 # --- Activate Catppuccin theme for fast-syntax-highlighting ---
 printf '\e[34m%s\e[0m\n' "Activating fast-syntax-highlighting theme..." 1>&2

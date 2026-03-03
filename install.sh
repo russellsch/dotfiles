@@ -5,6 +5,11 @@ source "$(cd "$(dirname "$0")" && pwd)/common.sh"
 # Feature flags — sensible defaults, all overridable
 DOTFILES_SKIP_FONTS="${DOTFILES_SKIP_FONTS:-$DOTFILES_CONTAINER}"
 DOTFILES_SKIP_CHSH="${DOTFILES_SKIP_CHSH:-false}"
+
+# Force-skip operations that require root when running rootless
+if [ "$CAN_ROOT" = "false" ]; then
+    DOTFILES_SKIP_CHSH=true
+fi
 export DOTFILES_SKIP_FONTS DOTFILES_SKIP_CHSH
 
 # Confirm the user and home directory
@@ -23,18 +28,22 @@ printf '\e[34m%s\e[0m\n' "Setting script permissions..." 1>&2
 chmod +x ./*/install.sh
 
 printf '\e[34m%s\e[0m\n' "Installing universal dependencies..." 1>&2
-if [ "$MACHINE" = "Ubuntu" ]; then
-    apt-get update
-    apt-get install curl git -y
-elif [ "$MACHINE" = "MacOS" ]; then
+if [ "$MACHINE" = "MacOS" ]; then
     if ! command -v brew &>/dev/null; then
         # Homebrew/install pinned to 5838cadb (2026-02-19)
         /bin/bash -c "$(curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/Homebrew/install/5838cadbb2c7beb17c7dcdddb5f0dba6c4780feb/install.sh)" </dev/null
     fi
     brew install curl git
-elif [ "$MACHINE" = "Arch" ]; then
-    pacman -Sy --noconfirm
-    pacman -S curl git --noconfirm
+elif [ "$CAN_ROOT" = "true" ]; then
+    if [ "$MACHINE" = "Ubuntu" ]; then
+        apt-get update
+        apt-get install curl git -y
+    elif [ "$MACHINE" = "Arch" ]; then
+        pacman -Sy --noconfirm
+        pacman -S curl git --noconfirm
+    fi
+else
+    printf '\e[33m%s\e[0m\n' "Rootless mode: skipping system package install (curl, git must be pre-installed)" 1>&2
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing Dependency: uv ..." 1>&2
