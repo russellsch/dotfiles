@@ -58,15 +58,10 @@ else
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing Dependency: uv ..." 1>&2
-if [ -z "${UV_SKIP_INSTALL:-}" ] && ! run_as_user uv --version &>/dev/null; then
-    # Download installer to a temp file instead of piping (curl|sh swallows errors)
-    curl --proto '=https' --tlsv1.2 -LsSf -o /tmp/uv-installer.sh \
-        https://github.com/astral-sh/uv/releases/download/0.10.2/uv-installer.sh
-    run_as_user sh /tmp/uv-installer.sh
-    rm -f /tmp/uv-installer.sh
-    # The installer (cargo-dist) creates an `env` file next to the binary that
-    # adds the install directory to PATH.  Source it so uv is found regardless of
-    # where the installer chose to place it (e.g. /opt/bin in some containers).
+# Helper: source the cargo-dist env file from well-known install locations.
+# This adds whichever directory the installer chose to PATH (handles /opt/bin
+# in containers, CARGO_HOME overrides, etc.).
+_source_uv_env() {
     for _uv_env in \
         "$TARGET_HOME/.local/bin/env" \
         "$TARGET_HOME/.cargo/bin/env" \
@@ -75,13 +70,27 @@ if [ -z "${UV_SKIP_INSTALL:-}" ] && ! run_as_user uv --version &>/dev/null; then
         if [ -n "$_uv_env" ] && [ -f "$_uv_env" ]; then
             # shellcheck disable=SC1090
             . "$_uv_env"
-            break
+            return 0
         fi
     done
-    unset _uv_env
+    return 1
+}
+# Source early so an already-installed uv at a non-standard location (e.g.
+# /opt/bin) is discovered before we download.  Using `command -v` (instead of
+# run_as_user) avoids sudo resetting PATH and hiding the binary.
+_source_uv_env
+if [ -z "${UV_SKIP_INSTALL:-}" ] && ! command -v uv &>/dev/null; then
+    # Download installer to a temp file instead of piping (curl|sh swallows errors)
+    curl --proto '=https' --tlsv1.2 -LsSf -o /tmp/uv-installer.sh \
+        https://github.com/astral-sh/uv/releases/download/0.10.2/uv-installer.sh
+    run_as_user sh /tmp/uv-installer.sh
+    rm -f /tmp/uv-installer.sh
+    # Re-source to pick up the newly created env file
+    _source_uv_env
 fi
+unset -f _source_uv_env
 # Verify uv is available
-if ! run_as_user uv --version &>/dev/null; then
+if ! command -v uv &>/dev/null; then
     printf '\e[31;1m%s\e[0m\n' "ERROR: uv installation failed — uv not found on PATH" 1>&2
     printf '\e[31m%s\e[0m\n' "PATH=$PATH" 1>&2
     exit 1
