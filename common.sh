@@ -146,11 +146,14 @@ export STARSHIP_VERSION FZF_VERSION NERD_FONTS_VERSION LSD_VERSION CATPPUCCIN_FS
 
 # --- Helpers ---
 # Helper: run a command as TARGET_USER (skips sudo when already that user)
+# When sudo is needed, we use `env` to propagate PATH because sudo's
+# secure_path resets it, hiding user-local tools (uv, starship, etc.)
+# that live in ~/.local/bin or ~/.cargo/bin.
 run_as_user() {
     if [ "$(id -u)" = "$(id -u "$TARGET_USER" 2>/dev/null)" ]; then
         "$@"
     else
-        sudo -Hu "$TARGET_USER" "$@"
+        sudo -Hu "$TARGET_USER" env "PATH=$PATH" "$@"
     fi
 }
 export -f run_as_user
