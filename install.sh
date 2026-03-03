@@ -64,9 +64,23 @@ if [ -z "${UV_SKIP_INSTALL:-}" ] && ! run_as_user uv --version &>/dev/null; then
         https://github.com/astral-sh/uv/releases/download/0.10.2/uv-installer.sh
     run_as_user sh /tmp/uv-installer.sh
     rm -f /tmp/uv-installer.sh
+    # The installer (cargo-dist) creates an `env` file next to the binary that
+    # adds the install directory to PATH.  Source it so uv is found regardless of
+    # where the installer chose to place it (e.g. /opt/bin in some containers).
+    for _uv_env in \
+        "$TARGET_HOME/.local/bin/env" \
+        "$TARGET_HOME/.cargo/bin/env" \
+        "${CARGO_HOME:+$CARGO_HOME/bin/env}" \
+        /opt/bin/env; do
+        if [ -n "$_uv_env" ] && [ -f "$_uv_env" ]; then
+            # shellcheck disable=SC1090
+            . "$_uv_env"
+            break
+        fi
+    done
+    unset _uv_env
 fi
-# Verify uv is available (common.sh already added ~/.local/bin, ~/.cargo/bin,
-# and $CARGO_HOME/bin to PATH — so uv is found wherever the installer placed it)
+# Verify uv is available
 if ! run_as_user uv --version &>/dev/null; then
     printf '\e[31;1m%s\e[0m\n' "ERROR: uv installation failed — uv not found on PATH" 1>&2
     printf '\e[31m%s\e[0m\n' "PATH=$PATH" 1>&2
