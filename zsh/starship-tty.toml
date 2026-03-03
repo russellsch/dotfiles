@@ -2,7 +2,7 @@
 # No Nerd Fonts, no hex colors, no emoji — plain text + basic ANSI only
 "$schema" = 'https://starship.rs/config-schema.json'
 
-format = '$all'
+format = '$all$container$line_break$os$character'
 
 continuation_prompt = '[.](bright-black) '
 
@@ -46,6 +46,9 @@ symbol = "*"
 
 [os]
 disabled = true
+
+[container]
+format = 'in [$symbol \[$name\]]($style) '
 
 [os.symbols]
 Alpine = "alp "
