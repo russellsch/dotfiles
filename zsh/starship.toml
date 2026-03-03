@@ -1,7 +1,7 @@
 # Get editor completions based on the config schema
 "$schema" = 'https://starship.rs/config-schema.json'
 
-format = '$all'
+format = '$all$container$line_break$os$character'
 
 # Sets user-defined palette
 # Palettes must be defined _after_ this line
@@ -59,6 +59,9 @@ Pop = ' '
 Macos = " "
 Mint = '󰣭 '
 Ubuntu = ' '
+
+[container]
+format = 'in [$symbol \[$name\]]($style) '
 
 # Palette definitions
 [palettes.catppuccin_latte]
