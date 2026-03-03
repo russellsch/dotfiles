@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# --- Parse CLI flags ---
+for arg in "$@"; do
+    case "$arg" in
+        --unattended)
+            # Force non-interactive container mode (for devcontainer installCommand)
+            export DOTFILES_CONTAINER=true
+            export DOTFILES_INTERACTIVE=false
+            ;;
+    esac
+done
+
 source "$(cd "$(dirname "$0")" && pwd)/common.sh"
 
 # Feature flags — sensible defaults, all overridable
@@ -54,7 +65,8 @@ if [ -z "${UV_SKIP_INSTALL:-}" ] && ! run_as_user uv --version &>/dev/null; then
     run_as_user sh /tmp/uv-installer.sh
     rm -f /tmp/uv-installer.sh
 fi
-# Verify uv is available (installer may put it in ~/.local/bin or ~/.cargo/bin)
+# Verify uv is available (common.sh already added ~/.local/bin, ~/.cargo/bin,
+# and $CARGO_HOME/bin to PATH — so uv is found wherever the installer placed it)
 if ! run_as_user uv --version &>/dev/null; then
     printf '\e[31;1m%s\e[0m\n' "ERROR: uv installation failed — uv not found on PATH" 1>&2
     printf '\e[31m%s\e[0m\n' "PATH=$PATH" 1>&2

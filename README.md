@@ -41,16 +41,50 @@ Add to your VS Code user `settings.json`:
 ```json
 {
   "dotfiles.repository": "YOUR_USER/dotfiles",
-  "dotfiles.installCommand": "install.sh",
+  "dotfiles.installCommand": "install.sh --unattended",
   "terminal.integrated.defaultProfile.linux": "zsh",
   "terminal.integrated.sendKeybindingsToShell": true
 }
 ```
 
+The `--unattended` flag forces non-interactive container mode (equivalent to `DOTFILES_CONTAINER=true DOTFILES_INTERACTIVE=false`). While the installer auto-detects containers, the explicit flag is more reliable since the devcontainer dotfiles install may run before all container env vars are available.
+
 The terminal setting ensures VS Code opens zsh in containers. It only applies to Linux remotes and falls back silently if zsh isn't installed.
 Additionally, sendKeybindingsToShell allows Alt+Arrow key bindings (word movement, autosuggestion partial accept) pass through to integrated terminal.
 
 For GitHub Codespaces, configure the same under **Settings > Codespaces > Dotfiles** in your GitHub account.
+
+### Non-root containers
+
+The installer works in containers where the user does not have root or sudo. In this mode:
+
+- System package installs (`apt-get`, `pacman`, `dpkg`) are skipped — **zsh, curl, and git must be pre-installed** in the container image
+- Tools that normally install to system paths (starship, lsd, direnv) are installed to `~/.local/bin` instead
+- `chsh` is automatically skipped
+- Everything else (Zim, fzf, uv, thefuck, symlinks, themes) works normally
+
+Example `devcontainer.json` for a non-root container:
+
+```jsonc
+{
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  // or for a custom image, ensure zsh + curl + git are installed:
+  // "build": { "dockerfile": "Dockerfile" },
+
+  "remoteUser": "vscode",
+
+  "features": {
+    // The common-utils feature installs zsh, curl, git, etc. and is
+    // included by default in most devcontainer base images.
+    // If your image doesn't have them, add this feature explicitly:
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true
+    }
+  }
+}
+```
+
+The VS Code user settings shown above (`dotfiles.repository`, `dotfiles.installCommand`) are **user-level** — they apply automatically to all devcontainers you open without any per-project `devcontainer.json` changes.
 
 ### Environment variable overrides
 
@@ -69,7 +103,7 @@ Examples:
 # Skip only fonts on a regular host install
 DOTFILES_SKIP_FONTS=true ./install.sh
 
-# Fully non-interactive container-style install
+# Fully non-interactive container-style install (equivalent to --unattended)
 DOTFILES_CONTAINER=true DOTFILES_INTERACTIVE=false ./install.sh
 ```
 
