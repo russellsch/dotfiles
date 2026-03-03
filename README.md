@@ -63,6 +63,29 @@ The installer works in containers where the user does not have root or sudo. In 
 - `chsh` is automatically skipped
 - Everything else (Zim, fzf, uv, thefuck, symlinks, themes) works normally
 
+Example `devcontainer.json` for a non-root container:
+
+```jsonc
+{
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  // or for a custom image, ensure zsh + curl + git are installed:
+  // "build": { "dockerfile": "Dockerfile" },
+
+  "remoteUser": "vscode",
+
+  "features": {
+    // The common-utils feature installs zsh, curl, git, etc. and is
+    // included by default in most devcontainer base images.
+    // If your image doesn't have them, add this feature explicitly:
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true
+    }
+  }
+}
+```
+
+The VS Code user settings shown above (`dotfiles.repository`, `dotfiles.installCommand`) are **user-level** — they apply automatically to all devcontainers you open without any per-project `devcontainer.json` changes.
+
 ### Environment variable overrides
 
 All behavior can be overridden with env vars. These are checked before auto-detection, so an explicit value always wins.
