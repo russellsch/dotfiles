@@ -101,7 +101,7 @@ export CAN_ROOT
 if [ "$(id -u)" -ne 0 ] && [ "$MACHINE" != "MacOS" ]; then
     if [ "$CAN_ROOT" = "true" ]; then
         printf '\e[34m%s\e[0m\n' "Root privileges required. Re-running with sudo..." 1>&2
-        exec sudo --preserve-env=DOTFILES_CONTAINER,DOTFILES_INTERACTIVE,DOTFILES_SKIP_FONTS,DOTFILES_SKIP_CHSH,MACHINE "$0" "$@"
+        exec sudo --preserve-env=DOTFILES_CONTAINER,DOTFILES_INTERACTIVE,DOTFILES_SKIP_FONTS,DOTFILES_SKIP_CHSH,MACHINE,CARGO_HOME "$0" "$@"
     else
         printf '\e[33m%s\e[0m\n' "No root privileges available — running in rootless mode (system packages must be pre-installed)" 1>&2
     fi

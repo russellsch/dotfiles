@@ -58,16 +58,39 @@ else
 fi
 
 printf '\e[34m%s\e[0m\n' "Installing Dependency: uv ..." 1>&2
-if [ -z "${UV_SKIP_INSTALL:-}" ] && ! run_as_user uv --version &>/dev/null; then
+# Helper: source the cargo-dist env file from well-known install locations.
+# This adds whichever directory the installer chose to PATH (handles /opt/bin
+# in containers, CARGO_HOME overrides, etc.).
+_source_uv_env() {
+    for _uv_env in \
+        "$TARGET_HOME/.local/bin/env" \
+        "$TARGET_HOME/.cargo/bin/env" \
+        "${CARGO_HOME:+$CARGO_HOME/bin/env}" \
+        /opt/bin/env; do
+        if [ -n "$_uv_env" ] && [ -f "$_uv_env" ]; then
+            # shellcheck disable=SC1090
+            . "$_uv_env"
+            return 0
+        fi
+    done
+    return 1
+}
+# Source early so an already-installed uv at a non-standard location (e.g.
+# /opt/bin) is discovered before we download.  Using `command -v` (instead of
+# run_as_user) avoids sudo resetting PATH and hiding the binary.
+_source_uv_env
+if [ -z "${UV_SKIP_INSTALL:-}" ] && ! command -v uv &>/dev/null; then
     # Download installer to a temp file instead of piping (curl|sh swallows errors)
     curl --proto '=https' --tlsv1.2 -LsSf -o /tmp/uv-installer.sh \
         https://github.com/astral-sh/uv/releases/download/0.10.2/uv-installer.sh
     run_as_user sh /tmp/uv-installer.sh
     rm -f /tmp/uv-installer.sh
+    # Re-source to pick up the newly created env file
+    _source_uv_env
 fi
-# Verify uv is available (common.sh already added ~/.local/bin, ~/.cargo/bin,
-# and $CARGO_HOME/bin to PATH — so uv is found wherever the installer placed it)
-if ! run_as_user uv --version &>/dev/null; then
+unset -f _source_uv_env
+# Verify uv is available
+if ! command -v uv &>/dev/null; then
     printf '\e[31;1m%s\e[0m\n' "ERROR: uv installation failed — uv not found on PATH" 1>&2
     printf '\e[31m%s\e[0m\n' "PATH=$PATH" 1>&2
     exit 1

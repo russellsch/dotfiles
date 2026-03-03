@@ -106,7 +106,12 @@ fi
 
 printf '\e[34m%s\e[0m\n' "Installing thefuck..." 1>&2
 # shellcheck disable=SC2016
-run_as_user bash -c 'export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH" && uv tool install thefuck'
+run_as_user bash -c '
+    for _f in "$HOME/.local/bin/env" "$HOME/.cargo/bin/env" /opt/bin/env; do
+        [ -f "$_f" ] && . "$_f" && break
+    done
+    uv tool install thefuck
+'
 
 printf '\e[34m%s\e[0m\n' "Installing direnv..." 1>&2
 if [ "$MACHINE" = "MacOS" ]; then

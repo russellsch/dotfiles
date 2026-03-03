@@ -68,11 +68,21 @@ run_as_user "$TARGET_HOME/.fzf/install" --bin
 # --- Update uv + thefuck ---
 printf '\e[34m%s\e[0m\n' "Updating uv..." 1>&2
 # shellcheck disable=SC2016
-run_as_user bash -c 'export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH" && uv self update'
+run_as_user bash -c '
+    for _f in "$HOME/.local/bin/env" "$HOME/.cargo/bin/env" /opt/bin/env; do
+        [ -f "$_f" ] && . "$_f" && break
+    done
+    uv self update
+'
 
 printf '\e[34m%s\e[0m\n' "Updating thefuck..." 1>&2
 # shellcheck disable=SC2016
-run_as_user bash -c 'export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH" && uv tool upgrade thefuck'
+run_as_user bash -c '
+    for _f in "$HOME/.local/bin/env" "$HOME/.cargo/bin/env" /opt/bin/env; do
+        [ -f "$_f" ] && . "$_f" && break
+    done
+    uv tool upgrade thefuck
+'
 
 # --- Update direnv (rootless only — system installs handled by package manager above) ---
 if [ "$CAN_ROOT" = "false" ] && [ "$MACHINE" != "MacOS" ]; then
