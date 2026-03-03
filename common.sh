@@ -123,8 +123,8 @@ fi
 export TARGET_USER TARGET_HOME
 
 # --- Ensure user-local bin dirs are on PATH ---
-# The uv installer (cargo-dist) may use ~/.cargo/bin; other tools use ~/.local/bin.
-# Adding both here ensures tools are findable in child processes (e.g. zsh/install.sh)
+# The uv installer (cargo-dist) uses $CARGO_HOME/bin; other tools use ~/.local/bin.
+# Adding these here ensures tools are findable in child processes (e.g. zsh/install.sh)
 # without relying on profile files that non-interactive shells don't source.
 case ":$PATH:" in
     *":$TARGET_HOME/.local/bin:"*) ;;
@@ -134,6 +134,14 @@ case ":$PATH:" in
     *":$TARGET_HOME/.cargo/bin:"*) ;;
     *) export PATH="$TARGET_HOME/.cargo/bin:$PATH" ;;
 esac
+# If the container sets CARGO_HOME to a non-standard location (e.g. /opt),
+# add $CARGO_HOME/bin too so pre-installed tools there are found.
+if [ -n "${CARGO_HOME:-}" ] && [ "$CARGO_HOME" != "$TARGET_HOME/.cargo" ]; then
+    case ":$PATH:" in
+        *":$CARGO_HOME/bin:"*) ;;
+        *) export PATH="$CARGO_HOME/bin:$PATH" ;;
+    esac
+fi
 
 # --- Pinned dependency versions ---
 STARSHIP_VERSION="v1.24.2"
