@@ -59,12 +59,12 @@ fi
 
 printf '\e[34m%s\e[0m\n' "Installing Dependency: uv ..." 1>&2
 if [ -z "${UV_SKIP_INSTALL:-}" ] && ! run_as_user uv --version &>/dev/null; then
-    # Use the official astral.sh installer (not cargo-dist) — it always installs to
-    # ~/.local/bin which is already on PATH via common.sh and .zshenv.
     # Download to temp file first so curl failures aren't swallowed by a pipe.
+    # UV_INSTALL_DIR forces the binary into ~/.local/bin (already on PATH via
+    # common.sh and .zshenv) regardless of the installer's internal heuristics.
     curl --proto '=https' --tlsv1.2 -LsSf -o /tmp/uv-installer.sh \
         "https://astral.sh/uv/${UV_VERSION}/install.sh"
-    run_as_user sh /tmp/uv-installer.sh
+    run_as_user env UV_INSTALL_DIR="$TARGET_HOME/.local/bin" sh /tmp/uv-installer.sh
     rm -f /tmp/uv-installer.sh
 fi
 # Verify uv is available
