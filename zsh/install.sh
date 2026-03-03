@@ -29,7 +29,9 @@ if [ -d "$TARGET_HOME/.zim" ]; then
     printf '\e[33m%s\e[0m\n' "Zim Framework already installed, skipping..." 1>&2
 else
     # zimfw/install pinned to 55a2a28d (2026-02-19)
-    run_as_user zsh -c "$(curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/zimfw/install/55a2a28dfef53b9a12a16e38279f662363229c69/install.zsh)"
+    # Set SHELL=zsh so the installer skips its own chsh call (which prompts for
+    # a password via PAM).  We handle chsh separately below with root privileges.
+    run_as_user env SHELL="$(command -v zsh)" zsh -c "$(curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/zimfw/install/55a2a28dfef53b9a12a16e38279f662363229c69/install.zsh)"
 fi
 
 
