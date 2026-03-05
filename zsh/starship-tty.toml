@@ -49,6 +49,7 @@ disabled = true
 
 [container]
 format = 'in [$symbol \[$name\]]($style) '
+symbol = "container "
 
 [os.symbols]
 Alpine = "alp "
@@ -101,9 +102,6 @@ symbol = "cmake "
 
 [conda]
 symbol = "conda "
-
-[container]
-symbol = "container "
 
 [crystal]
 symbol = "cr "
