@@ -15,3 +15,6 @@ for _uvenv in ~/.cargo/bin/env /opt/bin/env; do
     [[ -f "$_uvenv" ]] && source "$_uvenv" && break
 done
 unset _uvenv
+
+# Machine-local env can be applied via $HOME/.zshenv.local; applies to every zsh
+[[ -r "$HOME/.zshenv.local" ]] && source "$HOME/.zshenv.local"

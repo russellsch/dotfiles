@@ -110,3 +110,14 @@ DOTFILES_CONTAINER=true DOTFILES_INTERACTIVE=false ./install.sh
 ## Updating
 
 To update packages and tools used, as well as reload Zim FW and starship, run the `./update.sh` script.
+
+## Machine-local zsh config
+
+For per-machine customization without modifying tracked dotfiles:
+
+| File | Purpose |
+|---|---|
+| `~/.zshenv.local` | Environment vars for all zsh sessions (login, scripts, etc.) |
+| `~/.zshrc.local` | Interactive shell config (aliases, functions, prompts) |
+
+These are sourced at the end of their respective files if they exist.

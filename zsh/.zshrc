@@ -74,7 +74,7 @@ bindkey '\e[1;3D' backward-word   # Alt+Left
 # Double-Escape to clear the current input line
 bindkey '\e\e' kill-whole-line
 
-# --- Source bash profile ---
-[[ -f ~/.bash_profile ]] && source ~/.bash_profile
-
 . "$HOME/.local/bin/env"
+
+# Machine-local interactive config - can be applied via $HOME/.zshrc.local
+[[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
