@@ -7,6 +7,16 @@ printf '\n\e[34;1m%s\e[0m\n\n' "=== Dotfiles Update ($MACHINE) ===" 1>&2
 # --- Update system packages ---
 printf '\e[34m%s\e[0m\n' "Updating system packages (zsh, direnv)..." 1>&2
 if [ "$MACHINE" = "MacOS" ]; then
+    # Ensure Homebrew is in PATH (handles non-interactive shells, cron, etc.)
+    if ! command -v brew &>/dev/null; then
+        for _brew_prefix in /opt/homebrew /usr/local; do
+            if [[ -x "$_brew_prefix/bin/brew" ]]; then
+                eval "$("$_brew_prefix/bin/brew" shellenv)"
+                break
+            fi
+        done
+        unset _brew_prefix
+    fi
     brew upgrade zsh lsd direnv starship
 elif [ "$CAN_ROOT" = "true" ]; then
     if [ "$MACHINE" = "Ubuntu" ]; then

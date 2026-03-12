@@ -141,6 +141,7 @@ fi
 printf '\e[34m%s\e[0m\n' "Creating links..." 1>&2
 ln -sfn "$ZSH_INSTALL_DIR/.zshenv" "$TARGET_HOME/.zshenv"
 ln -sfn "$ZSH_INSTALL_DIR/.zshrc" "$TARGET_HOME/.zshrc"
+ln -sfn "$ZSH_INSTALL_DIR/.zprofile" "$TARGET_HOME/.zprofile"
 ln -sfn "$ZSH_INSTALL_DIR/.zimrc" "$TARGET_HOME/.zimrc"
 
 # Create starship config dir and link if config exists
