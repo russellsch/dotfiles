@@ -11,8 +11,12 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(accept-line buffer-empty)
 
 # --- zimfw bootstrap ---
 ZIM_HOME=~/.zim
-[[ -f ${ZIM_HOME}/init.zsh ]] || source ${ZIM_HOME}/zimfw.zsh init -q
-source ${ZIM_HOME}/init.zsh
+if [[ -f ${ZIM_HOME}/zimfw.zsh ]]; then
+    [[ -f ${ZIM_HOME}/init.zsh ]] || source ${ZIM_HOME}/zimfw.zsh init -q
+    [[ -f ${ZIM_HOME}/init.zsh ]] && source ${ZIM_HOME}/init.zsh
+else
+    print -u2 "zsh: zimfw not found at ${ZIM_HOME}/zimfw.zsh"
+fi
 
 # --- Sane options (replaces zsh-saneopt) ---
 setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS
@@ -28,13 +32,18 @@ if [[ "$TERM" == "linux" ]]; then
 fi
 
 # --- direnv (must hook before starship so DIRENV_FILE is set for first prompt) ---
-eval "$(direnv hook zsh)"
+if (( $+commands[direnv] )); then
+    eval "$(direnv hook zsh)"
+else
+    print -u2 "zsh: direnv not found"
+fi
 
 # --- Prompt ---
-eval "$(starship init zsh)"
-
-# --- PATH ---
-path+=("$HOME/.local/bin")  # Used for uv
+if (( $+commands[starship] )); then
+    eval "$(starship init zsh)"
+else
+    print -u2 "zsh: starship not found"
+fi
 
 # --- Git aliases ---
 alias Gw='git worktree'
@@ -73,8 +82,6 @@ bindkey '\e[1;3D' backward-word   # Alt+Left
 
 # Double-Escape to clear the current input line
 bindkey '\e\e' kill-whole-line
-
-. "$HOME/.local/bin/env"
 
 # Machine-local interactive config - can be applied via $HOME/.zshrc.local
 [[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
