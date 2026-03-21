@@ -108,6 +108,8 @@ fi
 # Setup vscode
 # TODO
 
+run_as_user git config --global init.defaultBranch main
+run_as_user git config --global pull.rebase true
 
 if [ "$DOTFILES_INTERACTIVE" = "true" ]; then
     if ! run_as_user git config user.name &>/dev/null || ! run_as_user git config user.email &>/dev/null; then
