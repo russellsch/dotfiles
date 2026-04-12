@@ -63,6 +63,13 @@ Ubuntu = ' '
 [container]
 format = 'in [$symbol \[$name\]]($style) '
 
+[custom.screen]
+command = "echo $STY | cut -d'.' -f2-"
+when = 'test -n "$STY"'
+format = 'in [📺\[$output\]]($style) '
+style = "bold yellow"
+description = "Show screen session name"
+
 # Palette definitions
 [palettes.catppuccin_latte]
 rosewater = "#dc8a78"
