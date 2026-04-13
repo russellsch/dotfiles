@@ -51,6 +51,13 @@ disabled = true
 format = 'in [$symbol \[$name\]]($style) '
 symbol = "container "
 
+[custom.screen]
+command = "echo $STY | cut -d'.' -f2-"
+when = 'test -n "$STY"'
+format = 'in [scr\[$output\]]($style) '
+style = "bold yellow"
+description = "Show screen session name"
+
 [os.symbols]
 Alpine = "alp "
 Arch = "rch "
